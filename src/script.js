@@ -11,20 +11,26 @@ const scene = new THREE.Scene()
 const gui = new dat.GUI()
 
 // Custom Scene
-const myScene = new CustomSceneBuilder(scene, false, gui)
+const myScene = new CustomSceneBuilder(scene, {
+    lights: false,
+    shadows: true
+}, gui)
 
-gui.add(myScene.secondaryLight.target.position, 'x')
+gui.add(myScene.basePlaneMesh.position, 'x')
     .min(-15)
-    .max(15)
+    .max(30)
     .step(0.1)
-gui.add(myScene.secondaryLight.target.position, 'y')
+    .name('plane x')
+gui.add(myScene.basePlaneMesh.position, 'y')
     .min(-15)
-    .max(15)
+    .max(30)
     .step(0.1)
-gui.add(myScene.secondaryLight.target.position, 'z')
+    .name('plane y')
+gui.add(myScene.basePlaneMesh.position, 'z')
     .min(-15)
-    .max(15)
+    .max(30)
     .step(0.1)
+    .name('plane z')
 
 // Sizes
 const sizes = {
@@ -41,11 +47,27 @@ window.addEventListener('mousemove', ev => {
 
 // Camera
 const camera = new THREE.PerspectiveCamera(75, sizes.width / sizes.height)
-camera.position.x = 2.5
-camera.position.y = 3.5
-camera.position.z = 7.7
+camera.position.x = 3.9
+camera.position.y = 2
+camera.position.z = 6.4
 camera.lookAt(myScene.basePlaneMesh)
 scene.add(camera)
+
+gui.add(camera.position, 'x')
+    .min(-15)
+    .max(30)
+    .step(0.1)
+    .name('camera x')
+gui.add(camera.position, 'y')
+    .min(-15)
+    .max(30)
+    .step(0.1)
+    .name('camera y')
+gui.add(camera.position, 'z')
+    .min(-15)
+    .max(30)
+    .step(0.1)
+    .name('camera z')
 
 const canvasElement = document.querySelector('canvas.webgl')
 
@@ -56,6 +78,11 @@ const renderer = new THREE.WebGLRenderer({
 renderer.setSize(sizes.width, sizes.height)
 // having a pixel ratio higher than 2 does not provide noticeable improvements while greatly affetcs performance
 renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2))
+
+// enable the generation of shadow maps
+renderer.shadowMap.enabled = true
+renderer.shadowMap.type = THREE.PCFSoftShadowMap
+
 renderer.render(scene, camera)
 
 // Controls
