@@ -114,8 +114,7 @@ const tick = () => {
     // find non-intersected objects and reset their highlighted{By} properties
     myScene.sceneSubjects.filter(sub =>
         !spotLightIntersects
-            .map(i => i.object)
-            .find(obj => obj.uuid === sub.uuid))
+            .find(i => i.object.uuid === sub.uuid))
         .forEach(notIntersected => {
             if (notIntersected.highlighted) {
                 // change status only when needed
