@@ -109,35 +109,34 @@ const tick = () => {
     
     myScene.secondaryLight.shadow.camera.getWorldDirection(spotLightDirection)
     subjectsRaycaster.set(myScene.secondaryLight.position, spotLightDirection)
-    const spotLightIntersects = subjectsRaycaster.intersectObjects(myScene.sceneSubjects, false)
 
-    // find non-intersected objects and reset their highlighted{By} properties
-    myScene.sceneSubjects.filter(sub =>
-        !spotLightIntersects
-            .find(i => i.object.uuid === sub.uuid))
-        .forEach(notIntersected => {
-            if (notIntersected.highlighted) {
-                // change status only when needed
-                notIntersected.highlighted = false
-                notIntersected.highlightedBy = null
-                notIntersected.material?.color.set(0xff0000)
-    
-                // console.log(`object ${notIntersected.uuid} no longer intersected`)
+    for (const subject of myScene.sceneSubjects) {
+        const subjIntersects = subjectsRaycaster.intersectObject(subject, false)
+
+        if (subjIntersects.length) {
+            // the subject is crossed by the ray
+            if (!subject.highlighted) {
+                // previously not highlighted
+                
+                // not yet highlighted
+                subject.highlighted = true
+                subject.highlightedBy = myScene.secondaryLight
+
+                // the intersected object actually should be a Mesh
+                subject.material?.color.set(0x00ff00)
             }
-        })
 
-    for (const intersection of spotLightIntersects) {
-        if (intersection.object.highlighted) {
-            // already highlighted, do nothing for now
+            // else: already highlighted, do nothing
         } else {
-            // not yet highlighted
-            intersection.object.highlighted = true
-            intersection.object.highlightedBy = myScene.secondaryLight
+            // the subject is not crossed by the ray
+            if (subject.highlighted) {
+                // previously highlighte
+                subject.highlighted = false
+                subject.highlightedBy = null
+                subject.material?.color.set(0xff0000)
+            }
 
-            // the intersected object actually should be a Mesh
-            intersection.object.material?.color.set(0x00ff00)
-
-            // console.log(intersection)
+            // else: still not highlighted, do nothing
         }
     }
 
