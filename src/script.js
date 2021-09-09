@@ -16,22 +16,49 @@ const myScene = new CustomSceneBuilder(scene, {
     lights: false,
     shadows: true
 }, gui)
-
-gui.add(myScene.basePlaneMesh.position, 'x')
-    .min(-15)
-    .max(30)
-    .step(0.1)
-    .name('plane x')
-gui.add(myScene.basePlaneMesh.position, 'y')
-    .min(-15)
-    .max(30)
-    .step(0.1)
-    .name('plane y')
-gui.add(myScene.basePlaneMesh.position, 'z')
-    .min(-15)
-    .max(30)
-    .step(0.1)
-    .name('plane z')
+myScene.addText('SRAND.it')
+    .then(titleMesh => {
+        gui.add(titleMesh.position, 'x')
+            .min(-15)
+            .max(30)
+            .step(0.1)
+            .name('title x pos')
+        gui.add(titleMesh.position, 'y')
+            .min(-15)
+            .max(30)
+            .step(0.1)
+            .name('title y pos')
+        gui.add(titleMesh.position, 'z')
+            .min(-15)
+            .max(30)
+            .step(0.1)
+            .name('title z pos')
+        gui.add(titleMesh.rotation, 'x')
+            .min(- Math.PI * 2)
+            .max(Math.PI * 2)
+            .step(0.1)
+            .name('title x rot')
+        gui.add(titleMesh.rotation, 'y')
+            .min(- Math.PI * 2)
+            .max(Math.PI * 2)
+            .step(0.1)
+            .name('title y rot')
+        gui.add(titleMesh.rotation, 'z')
+            .min(- Math.PI * 2)
+            .max(Math.PI * 2)
+            .step(0.1)
+            .name('title z rot')
+        // gui.add(titleMesh.geometry, 'bevelSize')
+        //     .min(0)
+        //     .max(5)
+        //     .step(0.1)
+        //     .name('title bevel size')
+        // gui.add(titleMesh.geometry, 'bevelThickness')
+        //     .min(0)
+        //     .max(5)
+        //     .step(0.1)
+        //     .name('title bevel thickness')
+    })
 
 // Sizes
 const sizes = {
@@ -55,22 +82,6 @@ camera.position.y = 2
 camera.position.z = 6.4
 camera.lookAt(myScene.basePlaneMesh)
 scene.add(camera)
-
-gui.add(camera.position, 'x')
-    .min(-15)
-    .max(30)
-    .step(0.1)
-    .name('camera x')
-gui.add(camera.position, 'y')
-    .min(-15)
-    .max(30)
-    .step(0.1)
-    .name('camera y')
-gui.add(camera.position, 'z')
-    .min(-15)
-    .max(30)
-    .step(0.1)
-    .name('camera z')
 
 const canvasElement = document.querySelector('canvas.webgl')
 
@@ -106,7 +117,7 @@ const tick = () => {
         myScene.secondaryLight.target.position.y = planeTargetPoint.y
         myScene.secondaryLight.target.position.z = planeTargetPoint.z
     }
-    
+
     myScene.secondaryLight.shadow.camera.getWorldDirection(spotLightDirection)
     subjectsRaycaster.set(myScene.secondaryLight.position, spotLightDirection)
 
@@ -117,7 +128,7 @@ const tick = () => {
             // the subject is crossed by the ray
             if (!subject.highlighted) {
                 // previously not highlighted
-                
+
                 // not yet highlighted
                 subject.highlighted = true
                 subject.highlightedBy = myScene.secondaryLight

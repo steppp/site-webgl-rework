@@ -1,5 +1,6 @@
 import * as THREE from 'three'
 import { MeshStandardMaterial, Vector3 } from 'three';
+// import * as titleFont from 'three/examples/fonts/droid/droid_sans_bold.typeface.json'
 
 export class CustomSceneBuilder {
     // MARK: static members
@@ -7,8 +8,41 @@ export class CustomSceneBuilder {
 
     // MARK: public members
     sceneSubjects = []
+    addText = (text) => {
+        let font, matcap;
+        const loadingManager = new THREE.LoadingManager()
+        
+        const fontLoader = new THREE.FontLoader(loadingManager)
+        const matCapLoader = new THREE.TextureLoader(loadingManager)
+        fontLoader.load('fonts/droid_sans_bold.typeface.json', loadedFont => font = loadedFont)
+        matCapLoader.load('matcaps/1-512px.png', loadedMatCap => matcap = loadedMatCap)
+
+        return new Promise((resolveFunc, _) => {
+            loadingManager.onLoad = () => {
+                const textGeom = new THREE.TextGeometry(text, {
+                    font,
+                    size: 2,
+                    height: 0.5,
+                    bevelEnabled: true,
+                    bevelSize: 0.1,
+                    bevelThickness: 0.1,
+                    bevelSegments: 10
+                })
+                const material = new THREE.MeshMatcapMaterial({ matcap })
+                this.titleMesh = new THREE.Mesh(textGeom, material)
+                this.titleMesh.geometry.center()
+                this.#scene.add(this.titleMesh)
+
+                this.titleMesh.position.set(-1.4, 2.9, -1.9)
+                this.titleMesh.rotation.set(-0.2, 0.5, 0.1)
+
+                resolveFunc(this.titleMesh)
+            }
+        })
+    }
 
     // MARK: private members
+    #scene = new THREE.Scene()
     #enableHelpers
     #buildBasePlane = (scene, sizes) => {
         const planeGeom = new THREE.PlaneGeometry(sizes.x, sizes.y, CustomSceneBuilder.meshesSegmentsCount, CustomSceneBuilder.meshesSegmentsCount)
@@ -93,7 +127,7 @@ export class CustomSceneBuilder {
                 metalness: 0
             })
         )
-        scene.add(cubeMesh)
+        this.#scene.add(cubeMesh)
         cubeMesh.position.x = position.x
         cubeMesh.position.y = position.y
         cubeMesh.position.z = position.z
@@ -105,12 +139,14 @@ export class CustomSceneBuilder {
         cubeMesh.castShadow = true
         cubeMesh.receiveShadow = true
     }
+    
 
     constructor(scene, enableHelpers = {
         lights: false,
         shadows: false
     }) {
         this.#enableHelpers = enableHelpers
+        this.#scene = scene
 
         this.#buildBasePlane(scene, {
             x: 15,
