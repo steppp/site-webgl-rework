@@ -44,11 +44,12 @@ const particlesGeometry = new THREE.SphereGeometry(configuration.meshes.sphere.g
 //     configuration.meshes.box.geometry.segments,
 // )
 const particlesMaterial = new THREE.ShaderMaterial({
+    blending: THREE.AdditiveBlending,
+    depthWrite: false,
+    vertexColors: true,
+    transparent: true,
     vertexShader: particleVertexShader,
     fragmentShader: particleFragmentShader,
-    // blending: THREE.AdditiveBlending,
-    depthTest: false,
-    transparent: true
 })
 // new THREE.PointsMaterial({
 //     size: configuration.meshes.particles.size,
