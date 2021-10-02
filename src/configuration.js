@@ -7,12 +7,20 @@ const parameters = {
             geometry: {
                 // TODO: set the radius such that the sphere always covers n% of the page width
                 radius: 1,
-                segments: 48
+                segments: 64
+            }
+        },
+        box: {
+            geometry: {
+                width: 1,
+                height: 1,
+                depth: 1,
+                segments: 32,
             }
         },
         particles: {
-            size: 0.001,
-            color: 0xf0f0f3
+            size: 0.003,
+            color: 0xf0f0f3,
         }
     },
     camera: {
@@ -21,6 +29,6 @@ const parameters = {
     }
 }
 
-parameters.camera.aspectRatio = parameters.global.sizes.width / parameters.global.sizes.height
+parameters.camera.aspectRatio = window.innerWidth / window.innerHeight
 
 export default parameters;

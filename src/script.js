@@ -5,9 +5,18 @@ import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls'
 import configuration from './configuration'
 import { gsap } from 'gsap'
 
+import particleVertexShader from './shaders/vertex.glsl'
+import particleFragmentShader from './shaders/fragment.glsl'
+
 // Scene
 const scene = new THREE.Scene()
 scene.background = new THREE.Color(configuration.scene.background)
+
+// Sizes
+const sizes = {
+    width: window.innerWidth,
+    height: window.innerHeight
+}
 
 // Debug UI
 const gui = new dat.GUI()
@@ -17,22 +26,38 @@ gui.addFolder('scene')
 
 const mousePos = new THREE.Vector2()
 window.addEventListener('mousemove', ev => {
-    mousePos.x = ev.clientX / configuration.global.sizes.width * 2 - 1
-    mousePos.y = - (ev.clientY / configuration.global.sizes.height) * 2 + 1
+    mousePos.x = ev.clientX / sizes.width * 2 - 1
+    mousePos.y = - (ev.clientY / sizes.height) * 2 + 1
 })
 
 const axesHelper = new THREE.AxesHelper(1)
 scene.add(axesHelper)
 
-const sphereGeometry = new THREE.SphereGeometry(configuration.meshes.sphere.geometry.radius,
+const particlesGeometry = new THREE.SphereGeometry(configuration.meshes.sphere.geometry.radius,
     configuration.meshes.sphere.geometry.segments, configuration.meshes.sphere.geometry.segments)
-const particlesGeometry = new THREE.BufferGeometry()
-const positions = sphereGeometry.getAttribute('position')
-particlesGeometry.setAttribute('position', new THREE.BufferAttribute(positions.array, positions.itemSize))
-const particles = new THREE.Points(sphereGeometry, new THREE.PointsMaterial({
-    size: configuration.meshes.particles.size,
-    color: configuration.meshes.particles.color,
-}));
+// const particlesGeometry = new THREE.BoxGeometry(
+//     configuration.meshes.box.geometry.width,
+//     configuration.meshes.box.geometry.height,
+//     configuration.meshes.box.geometry.depth,
+//     configuration.meshes.box.geometry.segments,
+//     configuration.meshes.box.geometry.segments,
+//     configuration.meshes.box.geometry.segments,
+// )
+const particlesMaterial = new THREE.ShaderMaterial({
+    vertexShader: particleVertexShader,
+    fragmentShader: particleFragmentShader,
+    // blending: THREE.AdditiveBlending,
+    depthTest: false,
+    transparent: true
+})
+// new THREE.PointsMaterial({
+//     size: configuration.meshes.particles.size,
+//     color: configuration.meshes.particles.color,
+//     sizeAttenuation: true,
+//     blending: THREE.AdditiveBlending,
+//     // vertexColors: true,
+// })
+const particles = new THREE.Points(particlesGeometry, particlesMaterial);
 scene.add(particles)
 
 // Camera
@@ -42,17 +67,12 @@ scene.add(camera)
 
 const canvasElement = document.querySelector('canvas.webgl')
 
-// Sizes
-const sizes = {
-    width: window.innerWidth,
-    height: window.innerHeight
-}
-
 // Renderer
 const renderer = new THREE.WebGLRenderer({
-    canvas: canvasElement
+    canvas: canvasElement,
+    powerPreference: 'high-performance'
 })
-renderer.setSize(configuration.global.sizes.width, configuration.global.sizes.height)
+renderer.setSize(sizes.width, sizes.height)
 // having a pixel ratio higher than 2 does not provide noticeable improvements while greatly affetcs performance
 renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2))
 
@@ -74,8 +94,8 @@ tick()
 
 window.addEventListener('resize', () => {
     // update sizes
-    configuration.global.sizes.width = window.innerWidth
-    configuration.global.sizes.height = window.innerHeight
+    sizes.width = window.innerWidth
+    sizes.height = window.innerHeight
 
     // update camera's aspect ratio
     configuration.camera.aspectRatio = sizes.width / sizes.height
@@ -83,6 +103,6 @@ window.addEventListener('resize', () => {
     // must be changed after changing the parameters
     camera.updateProjectionMatrix()
 
-    renderer.setSize(configuration.global.sizes.width, configuration.global.sizes.height)
+    renderer.setSize(sizes.width, sizes.height)
     renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2))
 })
