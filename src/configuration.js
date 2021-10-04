@@ -7,7 +7,7 @@ const parameters = {
             geometry: {
                 // TODO: set the radius such that the sphere always covers n% of the page width
                 radius: 1,
-                segments: 64
+                segments: 128
             }
         },
         box: {
@@ -15,7 +15,7 @@ const parameters = {
                 width: 1,
                 height: 1,
                 depth: 1,
-                segments: 32,
+                segments: 64,
             }
         },
         particles: {

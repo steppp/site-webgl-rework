@@ -54,14 +54,15 @@ const baseGeometry = new THREE.SphereGeometry(configuration.meshes.sphere.geomet
 //     configuration.meshes.box.geometry.segments,
 //     configuration.meshes.box.geometry.segments,
 // )
+// const baseGeometry = new THREE.TorusGeometry(1, 0.3, 128, 128)
 const particlesMaterial = new THREE.ShaderMaterial({
-    depthWrite: false,
-    transparent: true,
+    // depthWrite: false,
+    // transparent: true,
     vertexShader: particleVertexShader,
     fragmentShader: particleFragmentShader,
     uniforms: {
         uUnadjustedPointSize: {
-            value: 8 * renderer.getPixelRatio()
+            value: 1 * renderer.getPixelRatio()
         }
     }
 })
@@ -83,7 +84,13 @@ const controls = new OrbitControls(camera, canvasElement)
 controls.enableDamping = true
 controls.enabled = true
 
+const clock = new THREE.Clock()
+let elapsedTime = 0
+
 const tick = () => {
+    elapsedTime = clock.getElapsedTime()
+    particles.rotation.y = (- elapsedTime / 4) % (Math.PI * 2)
+
     controls.update()
     renderer.render(scene, camera)
 
