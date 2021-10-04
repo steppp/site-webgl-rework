@@ -18,6 +18,17 @@ const sizes = {
     height: window.innerHeight
 }
 
+const canvasElement = document.querySelector('canvas.webgl')
+
+// Renderer
+const renderer = new THREE.WebGLRenderer({
+    canvas: canvasElement,
+    powerPreference: 'high-performance'
+})
+renderer.setSize(sizes.width, sizes.height)
+// having a pixel ratio higher than 2 does not provide noticeable improvements while greatly affects performance
+renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2))
+
 // Debug UI
 const gui = new dat.GUI()
 gui.addFolder('scene')
@@ -33,9 +44,9 @@ window.addEventListener('mousemove', ev => {
 const axesHelper = new THREE.AxesHelper(1)
 scene.add(axesHelper)
 
-const particlesGeometry = new THREE.SphereGeometry(configuration.meshes.sphere.geometry.radius,
+const baseGeometry = new THREE.SphereGeometry(configuration.meshes.sphere.geometry.radius,
     configuration.meshes.sphere.geometry.segments, configuration.meshes.sphere.geometry.segments)
-// const particlesGeometry = new THREE.BoxGeometry(
+// const baseGeometry = new THREE.BoxGeometry(
 //     configuration.meshes.box.geometry.width,
 //     configuration.meshes.box.geometry.height,
 //     configuration.meshes.box.geometry.depth,
@@ -44,20 +55,19 @@ const particlesGeometry = new THREE.SphereGeometry(configuration.meshes.sphere.g
 //     configuration.meshes.box.geometry.segments,
 // )
 const particlesMaterial = new THREE.ShaderMaterial({
-    blending: THREE.AdditiveBlending,
     depthWrite: false,
-    vertexColors: true,
     transparent: true,
     vertexShader: particleVertexShader,
     fragmentShader: particleFragmentShader,
+    uniforms: {
+        uUnadjustedPointSize: {
+            value: 8 * renderer.getPixelRatio()
+        }
+    }
 })
-// new THREE.PointsMaterial({
-//     size: configuration.meshes.particles.size,
-//     color: configuration.meshes.particles.color,
-//     sizeAttenuation: true,
-//     blending: THREE.AdditiveBlending,
-//     // vertexColors: true,
-// })
+const pointsPositions = baseGeometry.getAttribute('position').clone()
+const particlesGeometry = new THREE.BufferGeometry()
+particlesGeometry.setAttribute('position', pointsPositions)
 const particles = new THREE.Points(particlesGeometry, particlesMaterial);
 scene.add(particles)
 
@@ -65,17 +75,6 @@ scene.add(particles)
 const camera = new THREE.PerspectiveCamera(configuration.camera.fov, configuration.camera.aspectRatio)
 camera.position.z = 2
 scene.add(camera)
-
-const canvasElement = document.querySelector('canvas.webgl')
-
-// Renderer
-const renderer = new THREE.WebGLRenderer({
-    canvas: canvasElement,
-    powerPreference: 'high-performance'
-})
-renderer.setSize(sizes.width, sizes.height)
-// having a pixel ratio higher than 2 does not provide noticeable improvements while greatly affetcs performance
-renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2))
 
 renderer.render(scene, camera)
 

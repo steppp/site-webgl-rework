@@ -3,6 +3,8 @@ precision highp float;
 // send the uv coordinate to the fragment shader
 varying vec2 vUv;
 
+uniform float uUnadjustedPointSize;
+
 void main() {
     vUv = uv;
 
@@ -12,7 +14,7 @@ void main() {
 
     gl_Position = projectedPosition;
 
-    gl_PointSize = 20.0;
+    gl_PointSize = uUnadjustedPointSize;
     /**
     * Size attenuation
     * see see /node_modules/three/src/renderers/shaders/ShaderLib/point_vert.glsl.js
