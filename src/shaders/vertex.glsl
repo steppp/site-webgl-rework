@@ -4,6 +4,7 @@ precision highp float;
 varying vec2 vUv;
 
 uniform float uUnadjustedPointSize;
+uniform float uTime;
 
 void main() {
     vUv = uv;
@@ -13,6 +14,7 @@ void main() {
     vec4 projectedPosition = projectionMatrix * viewPosition;
 
     gl_Position = projectedPosition;
+    gl_Position.x += sin(uv.x);
 
     gl_PointSize = uUnadjustedPointSize;
     /**

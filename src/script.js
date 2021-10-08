@@ -46,15 +46,6 @@ scene.add(axesHelper)
 
 const baseGeometry = new THREE.SphereGeometry(configuration.meshes.sphere.geometry.radius,
     configuration.meshes.sphere.geometry.segments, configuration.meshes.sphere.geometry.segments)
-// const baseGeometry = new THREE.BoxGeometry(
-//     configuration.meshes.box.geometry.width,
-//     configuration.meshes.box.geometry.height,
-//     configuration.meshes.box.geometry.depth,
-//     configuration.meshes.box.geometry.segments,
-//     configuration.meshes.box.geometry.segments,
-//     configuration.meshes.box.geometry.segments,
-// )
-// const baseGeometry = new THREE.TorusGeometry(1, 0.3, 128, 128)
 const particlesMaterial = new THREE.ShaderMaterial({
     // depthWrite: false,
     // transparent: true,
@@ -62,7 +53,13 @@ const particlesMaterial = new THREE.ShaderMaterial({
     fragmentShader: particleFragmentShader,
     uniforms: {
         uUnadjustedPointSize: {
-            value: 1 * renderer.getPixelRatio()
+            value: configuration.meshes.particles.size * renderer.getPixelRatio()
+        },
+        uColor: {
+            value: new THREE.Color(configuration.meshes.particles.color)
+        },
+        uTime: {
+            value: 0
         }
     }
 })
@@ -71,6 +68,19 @@ const particlesGeometry = new THREE.BufferGeometry()
 particlesGeometry.setAttribute('position', pointsPositions)
 const particles = new THREE.Points(particlesGeometry, particlesMaterial);
 scene.add(particles)
+
+const particlesGuiFolder = gui.addFolder('particles')
+particlesGuiFolder
+    .addColor(configuration.meshes.particles, 'color')
+    .onChange(_ => particles.material.uniforms.uColor.value =
+        new THREE.Color(configuration.meshes.particles.color))
+
+particlesGuiFolder
+    .add(configuration.meshes.particles, 'size')
+    .min(1)
+    .max(8)
+    .onChange(_ => particles.material.uniforms.uUnadjustedPointSize.value =
+        configuration.meshes.particles.size * renderer.getPixelRatio())
 
 // Camera
 const camera = new THREE.PerspectiveCamera(configuration.camera.fov, configuration.camera.aspectRatio)
@@ -90,6 +100,7 @@ let elapsedTime = 0
 const tick = () => {
     elapsedTime = clock.getElapsedTime()
     particles.rotation.y = (- elapsedTime / 4) % (Math.PI * 2)
+    particles.material.uniforms.uTime.value = elapsedTime
 
     controls.update()
     renderer.render(scene, camera)

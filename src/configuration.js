@@ -19,8 +19,8 @@ const parameters = {
             }
         },
         particles: {
-            size: 0.003,
-            color: 0xf0f0f3,
+            size: 1,
+            color: 0x74c9f5,
         }
     },
     camera: {
