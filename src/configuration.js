@@ -1,6 +1,12 @@
 const parameters = {
     scene: {
-        background: 0x15151b
+        enabledHelpers: {
+            axes: false
+        },
+        background: 0x15151b,
+        animations: {
+            rotationSpeed: 0.1
+        }
     },
     meshes: {
         sphere: {
@@ -19,13 +25,20 @@ const parameters = {
             }
         },
         particles: {
-            size: 1,
+            size: 2,
             color: 0x74c9f5,
         }
     },
     camera: {
         fov: 90,
-        aspectRatio: 0
+        aspectRatio: 0,
+        near: 0.01,
+        far: 10,
+        initialPosition: {
+            x: 0.7,
+            y: 0.7,
+            z: 1.3
+        }
     }
 }
 

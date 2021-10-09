@@ -31,7 +31,8 @@ renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2))
 
 // Debug UI
 const gui = new dat.GUI()
-gui.addFolder('scene')
+const sceneFolder = gui.addFolder('scene')
+sceneFolder
     .addColor(configuration.scene, 'background')
     .onChange(_ => scene.background.set(configuration.scene.background))
 
@@ -41,33 +42,72 @@ window.addEventListener('mousemove', ev => {
     mousePos.y = - (ev.clientY / sizes.height) * 2 + 1
 })
 
-const axesHelper = new THREE.AxesHelper(1)
-scene.add(axesHelper)
+if (configuration.scene.enabledHelpers.axes) {
+    const axesHelper = new THREE.AxesHelper(1)
+    scene.add(axesHelper)
+}
 
+let particlesGeometry;
+let particlesMaterial;
+const buildParticleSystem = (geom) => {
+    particlesMaterial = new THREE.ShaderMaterial({
+        // depthWrite: false,
+        // transparent: true,
+        vertexShader: particleVertexShader,
+        fragmentShader: particleFragmentShader,
+        uniforms: {
+            uUnadjustedPointSize: {
+                value: configuration.meshes.particles.size * renderer.getPixelRatio()
+            },
+            uColor: {
+                value: new THREE.Color(configuration.meshes.particles.color)
+            },
+            uTime: {
+                value: 0
+            },
+            uRotationSpeed: {
+                value: configuration.scene.animations.rotationSpeed
+            },
+            uRand: {
+                value: 0
+            }
+        }
+    })
+
+    const pointsPositions = geom.getAttribute('position').clone()
+    particlesGeometry = new THREE.BufferGeometry()
+    particlesGeometry.setAttribute('position', pointsPositions)
+    return new THREE.Points(particlesGeometry, particlesMaterial);
+}
 const baseGeometry = new THREE.SphereGeometry(configuration.meshes.sphere.geometry.radius,
     configuration.meshes.sphere.geometry.segments, configuration.meshes.sphere.geometry.segments)
-const particlesMaterial = new THREE.ShaderMaterial({
-    // depthWrite: false,
-    // transparent: true,
-    vertexShader: particleVertexShader,
-    fragmentShader: particleFragmentShader,
-    uniforms: {
-        uUnadjustedPointSize: {
-            value: configuration.meshes.particles.size * renderer.getPixelRatio()
-        },
-        uColor: {
-            value: new THREE.Color(configuration.meshes.particles.color)
-        },
-        uTime: {
-            value: 0
-        }
-    }
-})
-const pointsPositions = baseGeometry.getAttribute('position').clone()
-const particlesGeometry = new THREE.BufferGeometry()
-particlesGeometry.setAttribute('position', pointsPositions)
-const particles = new THREE.Points(particlesGeometry, particlesMaterial);
+let particles = buildParticleSystem(baseGeometry)
 scene.add(particles)
+
+sceneFolder
+    .add(configuration.scene.animations, 'rotationSpeed')
+    .min(-5)
+    .max(5)
+    .onFinishChange(_ => particles.material.uniforms.uRotationSpeed.value =
+        configuration.scene.animations.rotationSpeed)
+
+const meshFolder = gui.addFolder('mesh')
+meshFolder
+    .add(configuration.meshes.sphere.geometry, 'segments')
+    .min(16)
+    .max(512)
+    .onFinishChange(value => {
+        scene.remove(particles)
+        particles.material.dispose()
+        particles.geometry.dispose()
+        baseGeometry.dispose()
+
+        particles = buildParticleSystem(new THREE.SphereGeometry(
+            configuration.meshes.sphere.geometry.radius,
+            value,
+            value))
+        scene.add(particles)
+    })
 
 const particlesGuiFolder = gui.addFolder('particles')
 particlesGuiFolder
@@ -83,8 +123,18 @@ particlesGuiFolder
         configuration.meshes.particles.size * renderer.getPixelRatio())
 
 // Camera
-const camera = new THREE.PerspectiveCamera(configuration.camera.fov, configuration.camera.aspectRatio)
-camera.position.z = 2
+const camera = new THREE.PerspectiveCamera(
+    configuration.camera.fov, 
+    configuration.camera.aspectRatio,
+    configuration.camera.near,
+    configuration.camera.far
+)
+camera.position.set(
+    configuration.camera.initialPosition.x,
+    configuration.camera.initialPosition.y,
+    configuration.camera.initialPosition.z
+)
+camera.lookAt(particles.position)
 scene.add(camera)
 
 renderer.render(scene, camera)
@@ -98,9 +148,10 @@ const clock = new THREE.Clock()
 let elapsedTime = 0
 
 const tick = () => {
+    particles.material.uniforms.uRand.value = Math.random()
+
     elapsedTime = clock.getElapsedTime()
-    particles.rotation.y = (- elapsedTime / 4) % (Math.PI * 2)
-    particles.material.uniforms.uTime.value = elapsedTime
+    particlesMaterial.uniforms.uTime.value = elapsedTime
 
     controls.update()
     renderer.render(scene, camera)
