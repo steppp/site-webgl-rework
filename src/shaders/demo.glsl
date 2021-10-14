@@ -1,15 +1,3 @@
-precision highp float;
-
-#define PI 3.14
-
-// send the uv coordinate to the fragment shader
-varying vec2 vUv;
-
-uniform float uUnadjustedPointSize;
-uniform float uTime;
-uniform float uRotationSpeed;
-uniform float uRand;
-
 // Classic Perlin 3D Noise 
 // by Stefan Gustavson
 //
@@ -94,46 +82,18 @@ float cnoise(vec3 P)
     return 2.2 * n_xyz;
 }
 
-void main() {
-    vUv = uv;
 
-    vec4 modelPosition = modelMatrix * vec4(position, 1.0);
 
-    // TODO: we can use a parlin noise to get the vertices displacement values
-    float displacement = sin(modelPosition.x + uTime * 0.5) * sin(modelPosition.y + uTime * 0.5) / 3.0;
-    // displacement /= 5.0;
-    displacement -= cnoise(vec3(uv, sin(uv.x) * sin(uv.y))) ;
-    modelPosition.xyz *= 1.0 + displacement;
+void mainImage( out vec4 fragColor, in vec2 fragCoord )
+{
+    // Normalized pixel coordinates (from 0 to 1)
+    vec2 uv = fragCoord/iResolution.xy;
 
-    float angle = atan(modelPosition.x, modelPosition.z);
-    float distanceToCenter = length(modelPosition.xz);
-    float angleOffset = uTime * uRotationSpeed;
-    angle += angleOffset;
+    // Time varying pixel color
+    //vec3 col = 0.5 + 0.5*cos(iTime+uv.xyx+vec3(0,2,4));
+    vec3 col = vec3(cnoise(vec3(uv * 9.0, sin(uv.x + 0.5) * sin(uv.y + 0.5) * cos(iTime / 2.0) + sin(iTime)))) * 20.0;
+    col = step(0.2, col);
 
-    float pos_x = cos(angle) * distanceToCenter;
-    float pos_z = sin(angle) * distanceToCenter;
-    // modelPosition.x = pos_x;
-    // modelPosition.z = pos_z;
-
-    // float angleYZ = atan(modelPosition.y, modelPosition.z);
-    // float distanceToCenterYZ = length(modelPosition.yz);
-    // float angleOffsetYZ = uTime * uRotationSpeed;
-    // angleYZ += angleOffsetYZ;
-
-    // float pos_x1 = cos(angleYZ) * distanceToCenterYZ;
-    // float pos_y = sin(angleYZ) * distanceToCenterYZ;
-    // modelPosition.x = pos_x1;
-    // modelPosition.y = pos_y;
-
-    vec4 viewPosition = viewMatrix * modelPosition;
-    vec4 projectedPosition = projectionMatrix * viewPosition;
-    gl_Position = projectedPosition;
-
-    gl_PointSize = uUnadjustedPointSize;
-    /**
-    * Size attenuation
-    * see /node_modules/three/src/renderers/shaders/ShaderLib/point_vert.glsl.js
-    */
-    // disable size attenuation since small particles would flicker
-    // gl_PointSize *= max((1.0 / - viewPosition.z), 1.0);
+    // Output to screen
+    fragColor = vec4(col,1.0);
 }
