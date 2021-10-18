@@ -2,63 +2,15 @@ import './style.css'
 import * as THREE from 'three'
 import * as dat from 'dat.gui'
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls'
-import { CustomSceneBuilder } from './customSceneBuilder'
+import configuration from './configuration'
 import { gsap } from 'gsap'
+
+import particleVertexShader from './shaders/vertex.glsl'
+import particleFragmentShader from './shaders/fragment.glsl'
 
 // Scene
 const scene = new THREE.Scene()
-
-// Debug UI
-const gui = new dat.GUI()
-
-// Custom Scene
-const myScene = new CustomSceneBuilder(scene, {
-    lights: false,
-    shadows: true
-}, gui)
-myScene.addText('SRAND.it')
-    .then(titleMesh => {
-        gui.add(titleMesh.position, 'x')
-            .min(-15)
-            .max(30)
-            .step(0.1)
-            .name('title x pos')
-        gui.add(titleMesh.position, 'y')
-            .min(-15)
-            .max(30)
-            .step(0.1)
-            .name('title y pos')
-        gui.add(titleMesh.position, 'z')
-            .min(-15)
-            .max(30)
-            .step(0.1)
-            .name('title z pos')
-        gui.add(titleMesh.rotation, 'x')
-            .min(- Math.PI * 2)
-            .max(Math.PI * 2)
-            .step(0.1)
-            .name('title x rot')
-        gui.add(titleMesh.rotation, 'y')
-            .min(- Math.PI * 2)
-            .max(Math.PI * 2)
-            .step(0.1)
-            .name('title y rot')
-        gui.add(titleMesh.rotation, 'z')
-            .min(- Math.PI * 2)
-            .max(Math.PI * 2)
-            .step(0.1)
-            .name('title z rot')
-        // gui.add(titleMesh.geometry, 'bevelSize')
-        //     .min(0)
-        //     .max(5)
-        //     .step(0.1)
-        //     .name('title bevel size')
-        // gui.add(titleMesh.geometry, 'bevelThickness')
-        //     .min(0)
-        //     .max(5)
-        //     .step(0.1)
-        //     .name('title bevel thickness')
-    })
+scene.background = new THREE.Color(configuration.scene.background)
 
 // Sizes
 const sizes = {
@@ -66,90 +18,140 @@ const sizes = {
     height: window.innerHeight
 }
 
-const spotlightRaycaster = new THREE.Raycaster()
+const canvasElement = document.querySelector('canvas.webgl')
+
+// Renderer
+const renderer = new THREE.WebGLRenderer({
+    canvas: canvasElement,
+    powerPreference: 'high-performance'
+})
+renderer.setSize(sizes.width, sizes.height)
+// having a pixel ratio higher than 2 does not provide noticeable improvements while greatly affects performance
+renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2))
+
+// Debug UI
+const gui = new dat.GUI()
+const sceneFolder = gui.addFolder('scene')
+sceneFolder
+    .addColor(configuration.scene, 'background')
+    .onChange(_ => scene.background.set(configuration.scene.background))
+
 const mousePos = new THREE.Vector2()
 window.addEventListener('mousemove', ev => {
     mousePos.x = ev.clientX / sizes.width * 2 - 1
     mousePos.y = - (ev.clientY / sizes.height) * 2 + 1
 })
 
-const subjectsRaycaster = new THREE.Raycaster()
+if (configuration.scene.enabledHelpers.axes) {
+    const axesHelper = new THREE.AxesHelper(1)
+    scene.add(axesHelper)
+}
+
+let particlesGeometry;
+let particlesMaterial;
+const buildParticleSystem = (geom) => {
+    particlesMaterial = new THREE.ShaderMaterial({
+        // depthWrite: false,
+        // transparent: true,
+        vertexShader: particleVertexShader,
+        fragmentShader: particleFragmentShader,
+        uniforms: {
+            uUnadjustedPointSize: {
+                value: configuration.meshes.particles.size * renderer.getPixelRatio()
+            },
+            uColor: {
+                value: new THREE.Color(configuration.meshes.particles.color)
+            },
+            uTime: {
+                value: 0
+            },
+            uRotationSpeed: {
+                value: configuration.scene.animations.rotationSpeed
+            },
+            uRand: {
+                value: 0
+            }
+        }
+    })
+
+    const pointsPositions = geom.getAttribute('position').clone()
+    particlesGeometry = new THREE.BufferGeometry()
+    particlesGeometry.setAttribute('position', pointsPositions)
+    return new THREE.Points(particlesGeometry, particlesMaterial);
+}
+const baseGeometry = new THREE.SphereGeometry(configuration.meshes.sphere.geometry.radius,
+    configuration.meshes.sphere.geometry.segments, configuration.meshes.sphere.geometry.segments)
+let particles = buildParticleSystem(baseGeometry)
+scene.add(particles)
+
+sceneFolder
+    .add(configuration.scene.animations, 'rotationSpeed')
+    .min(-5)
+    .max(5)
+    .onFinishChange(_ => particles.material.uniforms.uRotationSpeed.value =
+        configuration.scene.animations.rotationSpeed)
+
+const meshFolder = gui.addFolder('mesh')
+meshFolder
+    .add(configuration.meshes.sphere.geometry, 'segments')
+    .min(16)
+    .max(512)
+    .onFinishChange(value => {
+        scene.remove(particles)
+        particles.material.dispose()
+        particles.geometry.dispose()
+        baseGeometry.dispose()
+
+        particles = buildParticleSystem(new THREE.SphereGeometry(
+            configuration.meshes.sphere.geometry.radius,
+            value,
+            value))
+        scene.add(particles)
+    })
+
+const particlesGuiFolder = gui.addFolder('particles')
+particlesGuiFolder
+    .addColor(configuration.meshes.particles, 'color')
+    .onChange(_ => particles.material.uniforms.uColor.value =
+        new THREE.Color(configuration.meshes.particles.color))
+
+particlesGuiFolder
+    .add(configuration.meshes.particles, 'size')
+    .min(1)
+    .max(8)
+    .onChange(_ => particles.material.uniforms.uUnadjustedPointSize.value =
+        configuration.meshes.particles.size * renderer.getPixelRatio())
 
 // Camera
-const camera = new THREE.PerspectiveCamera(75, sizes.width / sizes.height)
-camera.position.x = 3.9
-camera.position.y = 2
-camera.position.z = 6.4
-camera.lookAt(myScene.basePlaneMesh)
+const camera = new THREE.PerspectiveCamera(
+    configuration.camera.fov, 
+    configuration.camera.aspectRatio,
+    configuration.camera.near,
+    configuration.camera.far
+)
+camera.position.set(
+    configuration.camera.initialPosition.x,
+    configuration.camera.initialPosition.y,
+    configuration.camera.initialPosition.z
+)
+camera.lookAt(particles.position)
 scene.add(camera)
-
-const canvasElement = document.querySelector('canvas.webgl')
-
-// Renderer
-const renderer = new THREE.WebGLRenderer({
-    canvas: canvasElement
-})
-renderer.setSize(sizes.width, sizes.height)
-// having a pixel ratio higher than 2 does not provide noticeable improvements while greatly affetcs performance
-renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2))
-
-// enable the generation of shadow maps
-renderer.shadowMap.enabled = true
-renderer.shadowMap.type = THREE.PCFSoftShadowMap
 
 renderer.render(scene, camera)
 
 // Controls
 const controls = new OrbitControls(camera, canvasElement)
 controls.enableDamping = true
-controls.enabled = false
+controls.enabled = true
 
-const spotLightDirection = new THREE.Vector3()
-THREE.Object3D.prototype.highlighted = false
-THREE.Object3D.prototype.highlightedBy = null
+const clock = new THREE.Clock()
+let elapsedTime = 0
 
 const tick = () => {
-    spotlightRaycaster.setFromCamera(mousePos, camera)
-    const intersects = spotlightRaycaster.intersectObject(myScene.basePlaneMesh)
-    if (intersects.length) {
-        const planeTargetPoint = intersects[0].point
-        myScene.secondaryLight.target.position.x = planeTargetPoint.x
-        myScene.secondaryLight.target.position.y = planeTargetPoint.y
-        myScene.secondaryLight.target.position.z = planeTargetPoint.z
-    }
+    particles.material.uniforms.uRand.value = Math.random()
 
-    myScene.secondaryLight.shadow.camera.getWorldDirection(spotLightDirection)
-    subjectsRaycaster.set(myScene.secondaryLight.position, spotLightDirection)
-
-    for (const subject of myScene.sceneSubjects) {
-        const subjIntersects = subjectsRaycaster.intersectObject(subject, false)
-
-        if (subjIntersects.length) {
-            // the subject is crossed by the ray
-            if (!subject.highlighted) {
-                // previously not highlighted
-
-                // not yet highlighted
-                subject.highlighted = true
-                subject.highlightedBy = myScene.secondaryLight
-
-                // the intersected object actually should be a Mesh
-                subject.material?.color.set(0x00ff00)
-            }
-
-            // else: already highlighted, do nothing
-        } else {
-            // the subject is not crossed by the ray
-            if (subject.highlighted) {
-                // previously highlighte
-                subject.highlighted = false
-                subject.highlightedBy = null
-                subject.material?.color.set(0xff0000)
-            }
-
-            // else: still not highlighted, do nothing
-        }
-    }
+    elapsedTime = clock.getElapsedTime()
+    particlesMaterial.uniforms.uTime.value = elapsedTime
 
     controls.update()
     renderer.render(scene, camera)
@@ -165,7 +167,8 @@ window.addEventListener('resize', () => {
     sizes.height = window.innerHeight
 
     // update camera's aspect ratio
-    camera.aspect = sizes.width / sizes.height
+    configuration.camera.aspectRatio = sizes.width / sizes.height
+    camera.aspect = configuration.camera.aspectRatio
     // must be changed after changing the parameters
     camera.updateProjectionMatrix()
 

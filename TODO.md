@@ -1,7 +1,4 @@
-- avoid showing the actual plane shape when overing with the pointer near its boundaries (use alpha map or something like that?)
-- improve boxes geometry quality
-- animate main shapes when light is on them
-- lock the pointer spotlight on a mesh when it's inside some specific boundaries around that mesh
-- add 3d text on top of the page
-- improve scene colors and athmosphere
-- add resposiveness (for how it's possible)
+- adjust colors
+- adjust particles count
+- adjust size/speed/movement
+- ! add mouse interaction to increase the displacement of particles
