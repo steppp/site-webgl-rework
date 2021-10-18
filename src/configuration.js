@@ -5,7 +5,7 @@ const parameters = {
         },
         background: 0x15151b,
         animations: {
-            rotationSpeed: 0.1
+            rotationSpeed: -0.05
         }
     },
     meshes: {

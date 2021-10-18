@@ -73,15 +73,15 @@ void main() {
     // displacement -= cnoise(vec3(uv, sin(uv.x) * sin(uv.y))) ;
     // modelPosition.xyz *= 1.0 + displacement;
 
-    // float angle = atan(modelPosition.x, modelPosition.z);
-    // float distanceToCenter = length(modelPosition.xz);
-    // float angleOffset = uTime * uRotationSpeed;
-    // angle += angleOffset;
+    float angle = atan(modelPosition.x, modelPosition.z);
+    float distanceToCenter = length(modelPosition.xz);
+    float angleOffset = uTime * uRotationSpeed;
+    angle += angleOffset;
 
-    // float pos_x = cos(angle) * distanceToCenter;
-    // float pos_z = sin(angle) * distanceToCenter;
-    // modelPosition.x = pos_x;
-    // modelPosition.z = pos_z;
+    float pos_x = cos(angle) * distanceToCenter;
+    float pos_z = sin(angle) * distanceToCenter;
+    modelPosition.x = pos_x;
+    modelPosition.z = pos_z;
 
     vec2 colGrid = vec2(floor(modelPosition.x * 100.0), floor(modelPosition.y * 100.0)) + 5.0;
     // float strength = cnoise(colGrid * (uTime + 100.0) / 100.0) / 30.0;
