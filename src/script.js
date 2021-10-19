@@ -70,6 +70,12 @@ const buildParticleSystem = (geom) => {
             },
             uRand: {
                 value: 0
+            },
+            uMaxDisplacementLength: {
+                value: 1
+            },
+            uMousePos: {
+                value: new THREE.Vector2()
             }
         }
     })
@@ -81,6 +87,10 @@ const buildParticleSystem = (geom) => {
 }
 const baseGeometry = new THREE.SphereGeometry(configuration.meshes.sphere.geometry.radius,
     configuration.meshes.sphere.geometry.segments, configuration.meshes.sphere.geometry.segments)
+// const baseGeometry = new THREE.BoxGeometry(
+//     configuration.meshes.box.geometry.width, configuration.meshes.box.geometry.height, configuration.meshes.box.geometry.height,
+//     configuration.meshes.box.geometry.segments, configuration.meshes.box.geometry.segments, configuration.meshes.box.geometry.segments)
+
 let particles = buildParticleSystem(baseGeometry)
 scene.add(particles)
 
@@ -152,6 +162,8 @@ const tick = () => {
 
     elapsedTime = clock.getElapsedTime()
     particlesMaterial.uniforms.uTime.value = elapsedTime
+    particlesMaterial.uniforms.uMousePos.value.x = mousePos.x
+    particlesMaterial.uniforms.uMousePos.value.y = mousePos.y
 
     controls.update()
     renderer.render(scene, camera)

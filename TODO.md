@@ -1,4 +1,4 @@
 - adjust colors
 - adjust particles count
 - adjust size/speed/movement
-- ! add mouse interaction to increase the displacement of particles
+- ! find a way to only displace particles on the front side and exclude the ones on the back
