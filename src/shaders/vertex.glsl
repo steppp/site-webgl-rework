@@ -9,8 +9,10 @@ uniform float uUnadjustedPointSize;
 uniform float uTime;
 uniform float uRotationSpeed;
 uniform float uRand;
-uniform float uMaxDisplacementLength;
+uniform float uIntensity;
 uniform vec2 uMousePos;
+uniform float uFrequency;
+uniform float uSpeed;
 
 // define a pseudo-random function
 float random(vec2 st)
@@ -85,12 +87,9 @@ void main() {
     modelPosition.x = pos_x;
     modelPosition.z = pos_z;
 
-    vec2 colGrid = vec2(floor(modelPosition.x * 100.0), floor(modelPosition.y * 100.0)) + 5.0;
-    // float strength = cnoise(colGrid * (uTime + 100.0) / 100.0) / 30.0;
-    float strength = smoothstep(0.0, 1.0, cnoise(modelPosition.xy * 3.0 + uTime / 5.0)) / 10.0;
-    // float strength = cnoise(modelPosition.xy * 3.0 + uTime / 5.0) / 15.0;
+    float strength = cnoise(modelPosition.xy * uFrequency + uTime * uSpeed) / 10.0;
 
-    modelPosition.xyz += uMaxDisplacementLength * strength;
+    modelPosition.xyz += uIntensity * strength;
 
     vec4 viewPosition = viewMatrix * modelPosition;
     float zDisplacement = smoothstep(0.0, 0.9, distance(viewPosition.xy, uMousePos));
@@ -104,6 +103,5 @@ void main() {
     * Size attenuation
     * see /node_modules/three/src/renderers/shaders/ShaderLib/point_vert.glsl.js
     */
-    // disable size attenuation since small particles would flicker
-    gl_PointSize *= max((1.0 / - viewPosition.z), 1.0);
+    gl_PointSize *= (1.0 / - viewPosition.z);
 }

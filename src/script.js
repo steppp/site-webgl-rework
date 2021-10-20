@@ -71,11 +71,17 @@ const buildParticleSystem = (geom) => {
             uRand: {
                 value: 0
             },
-            uMaxDisplacementLength: {
-                value: 1
+            uIntensity: {
+                value: configuration.meshes.particles.shaders.intensity
             },
             uMousePos: {
                 value: new THREE.Vector2()
+            },
+            uFrequency: {
+                value: configuration.meshes.particles.shaders.frequency
+            },
+            uSpeed: {
+                value: configuration.meshes.particles.shaders.speed
             }
         }
     })
@@ -85,11 +91,14 @@ const buildParticleSystem = (geom) => {
     particlesGeometry.setAttribute('position', pointsPositions)
     return new THREE.Points(particlesGeometry, particlesMaterial);
 }
-const baseGeometry = new THREE.SphereGeometry(configuration.meshes.sphere.geometry.radius,
-    configuration.meshes.sphere.geometry.segments, configuration.meshes.sphere.geometry.segments)
+// const baseGeometry = new THREE.SphereGeometry(configuration.meshes.sphere.geometry.radius,
+//     configuration.meshes.sphere.geometry.segments, configuration.meshes.sphere.geometry.segments)
 // const baseGeometry = new THREE.BoxGeometry(
 //     configuration.meshes.box.geometry.width, configuration.meshes.box.geometry.height, configuration.meshes.box.geometry.height,
 //     configuration.meshes.box.geometry.segments, configuration.meshes.box.geometry.segments, configuration.meshes.box.geometry.segments)
+const baseGeometry = new THREE.TorusGeometry(
+    0.5, 0.3, 256, 256
+)
 
 let particles = buildParticleSystem(baseGeometry)
 scene.add(particles)
@@ -131,6 +140,29 @@ particlesGuiFolder
     .max(8)
     .onChange(_ => particles.material.uniforms.uUnadjustedPointSize.value =
         configuration.meshes.particles.size * renderer.getPixelRatio())
+
+particlesGuiFolder
+        .add(configuration.meshes.particles.shaders, 'frequency')
+        .min(0)
+        .max(20)
+        .onChange(_ => particles.material.uniforms.uFrequency.value =
+            configuration.meshes.particles.shaders.frequency)
+
+particlesGuiFolder
+        .add(configuration.meshes.particles.shaders, 'speed')
+        .min(0)
+        .max(8)
+        .step(0.1)
+        .onChange(_ => particles.material.uniforms.uSpeed.value =
+            configuration.meshes.particles.shaders.speed)
+
+particlesGuiFolder
+        .add(configuration.meshes.particles.shaders, 'intensity')
+        .min(0)
+        .max(8)
+        .step(0.1)
+        .onChange(_ => particles.material.uniforms.uIntensity.value =
+            configuration.meshes.particles.shaders.intensity)
 
 // Camera
 const camera = new THREE.PerspectiveCamera(

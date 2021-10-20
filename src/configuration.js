@@ -25,8 +25,13 @@ const parameters = {
             }
         },
         particles: {
-            size: 2,
+            size: 3,
             color: 0x74c9f5,
+            shaders: {
+                frequency: 2,
+                speed: 0.5,
+                intensity: 1
+            }
         }
     },
     camera: {
