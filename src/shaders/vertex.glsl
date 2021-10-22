@@ -13,6 +13,7 @@ uniform float uIntensity;
 uniform vec2 uMousePos;
 uniform float uFrequency;
 uniform float uSpeed;
+uniform float uScale;
 
 // define a pseudo-random function
 float random(vec2 st)
@@ -70,6 +71,7 @@ void main() {
     vUv = uv;
 
     vec4 modelPosition = modelMatrix * vec4(position, 1.0);
+    modelPosition.xyz *= uScale;
 
     // TODO: we can use a parlin noise to get the vertices displacement values
     // float displacement = sin(modelPosition.x + uTime * 0.5) * sin(modelPosition.y + uTime * 0.5) / 3.0;
@@ -89,6 +91,7 @@ void main() {
 
     float strength = cnoise(modelPosition.xy * uFrequency + uTime * uSpeed) / 10.0;
 
+    // modelPosition *= uScale;
     modelPosition.xyz += uIntensity * strength;
 
     vec4 viewPosition = viewMatrix * modelPosition;
@@ -103,5 +106,5 @@ void main() {
     * Size attenuation
     * see /node_modules/three/src/renderers/shaders/ShaderLib/point_vert.glsl.js
     */
-    gl_PointSize *= (1.0 / - viewPosition.z);
+    gl_PointSize *= max(0.5, 1.0 / - viewPosition.z);
 }

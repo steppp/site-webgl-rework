@@ -1,7 +1,7 @@
 const parameters = {
     scene: {
         enabledHelpers: {
-            axes: false
+            axes: true
         },
         background: 0x15151b,
         animations: {
@@ -9,6 +9,7 @@ const parameters = {
         }
     },
     meshes: {
+        scale: 1,
         sphere: {
             geometry: {
                 // TODO: set the radius such that the sphere always covers n% of the page width

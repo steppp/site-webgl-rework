@@ -82,6 +82,9 @@ const buildParticleSystem = (geom) => {
             },
             uSpeed: {
                 value: configuration.meshes.particles.shaders.speed
+            },
+            uScale: {
+                value: configuration.meshes.scale
             }
         }
     })
@@ -91,14 +94,14 @@ const buildParticleSystem = (geom) => {
     particlesGeometry.setAttribute('position', pointsPositions)
     return new THREE.Points(particlesGeometry, particlesMaterial);
 }
-// const baseGeometry = new THREE.SphereGeometry(configuration.meshes.sphere.geometry.radius,
-//     configuration.meshes.sphere.geometry.segments, configuration.meshes.sphere.geometry.segments)
+const baseGeometry = new THREE.SphereGeometry(configuration.meshes.sphere.geometry.radius,
+    configuration.meshes.sphere.geometry.segments, configuration.meshes.sphere.geometry.segments)
 // const baseGeometry = new THREE.BoxGeometry(
 //     configuration.meshes.box.geometry.width, configuration.meshes.box.geometry.height, configuration.meshes.box.geometry.height,
 //     configuration.meshes.box.geometry.segments, configuration.meshes.box.geometry.segments, configuration.meshes.box.geometry.segments)
-const baseGeometry = new THREE.TorusGeometry(
-    0.5, 0.3, 256, 256
-)
+// const baseGeometry = new THREE.TorusGeometry(
+//     0.5, 0.3, 256, 256
+// )
 
 let particles = buildParticleSystem(baseGeometry)
 scene.add(particles)
@@ -127,6 +130,14 @@ meshFolder
             value))
         scene.add(particles)
     })
+meshFolder
+    .add(configuration.meshes, 'scale')
+    .min(1)
+    .max(10)
+    .step(0.1)
+    .onChange(_ => particles.material.uniforms.uScale.value =
+        configuration.meshes.scale
+    )
 
 const particlesGuiFolder = gui.addFolder('particles')
 particlesGuiFolder
@@ -163,6 +174,16 @@ particlesGuiFolder
         .step(0.1)
         .onChange(_ => particles.material.uniforms.uIntensity.value =
             configuration.meshes.particles.shaders.intensity)
+
+const utilityFunctionsObject = {
+    runScaleAnimation: _ => {
+        console.log(configuration.meshes.scale)
+    }
+}
+
+const actionsFolder = gui.addFolder('actions')
+actionsFolder
+    .add(utilityFunctionsObject, 'runScaleAnimation')
 
 // Camera
 const camera = new THREE.PerspectiveCamera(
