@@ -119,6 +119,34 @@ sceneFolder
         configuration.scene.animations.rotationSpeed)
 
 
+const centralObject = new THREE.Mesh(
+    new THREE.IcosahedronGeometry(0.7, 0),
+    new THREE.MeshPhysicalMaterial({
+        thickness: 3.0,
+        roughness: 0.1,
+        transmission: 0.99,
+        ior: 1.2,
+    })
+)
+scene.add(centralObject)
+
+const secondaryBox = new THREE.Mesh(
+    new THREE.BoxGeometry(0.5, 0.5, 0.5, 16, 16, 16),
+    new THREE.MeshBasicMaterial({
+        color: 0xff0000
+    })
+)
+scene.add(secondaryBox)
+secondaryBox.position.setZ(-1)
+
+const hemishpereLight = new THREE.HemisphereLight(
+    0xffffff,
+    0xf13dd6,
+    0.4
+)
+scene.add(hemishpereLight)
+
+
 const meshFolder = gui.addFolder('mesh')
 meshFolder
     .add(configuration.meshes.sphere.geometry, 'segments')
