@@ -1,11 +1,16 @@
 const parameters = {
     scene: {
-        enabledHelpers: {
-            axes: true
+        helpers: {
+            axes: {
+                enabled: true
+            }
         },
         background: 0x15151b,
         animations: {
             rotationSpeed: -0.05
+        },
+        controls: {
+            enabled: true
         }
     },
     meshes: {

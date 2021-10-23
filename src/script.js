@@ -30,7 +30,9 @@ renderer.setSize(sizes.width, sizes.height)
 renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2))
 
 // Debug UI
-const gui = new dat.GUI()
+const gui = new dat.GUI({
+    width: 500
+})
 const sceneFolder = gui.addFolder('scene')
 sceneFolder
     .addColor(configuration.scene, 'background')
@@ -42,10 +44,13 @@ window.addEventListener('mousemove', ev => {
     mousePos.y = - (ev.clientY / sizes.height) * 2 + 1
 })
 
-if (configuration.scene.enabledHelpers.axes) {
-    const axesHelper = new THREE.AxesHelper(1)
-    scene.add(axesHelper)
-}
+const axesHelper = new THREE.AxesHelper(1)
+scene.add(axesHelper)
+axesHelper.visible = configuration.scene.helpers.axes.enabled
+sceneFolder
+    .add(configuration.scene.helpers.axes, 'enabled')
+    .name('Axes helpers enabled')
+    .onFinishChange(_ => axesHelper.visible = configuration.scene.helpers.axes.enabled)
 
 let particlesGeometry;
 let particlesMaterial;
@@ -113,6 +118,7 @@ sceneFolder
     .onFinishChange(_ => particles.material.uniforms.uRotationSpeed.value =
         configuration.scene.animations.rotationSpeed)
 
+
 const meshFolder = gui.addFolder('mesh')
 meshFolder
     .add(configuration.meshes.sphere.geometry, 'segments')
@@ -175,15 +181,39 @@ particlesGuiFolder
         .onChange(_ => particles.material.uniforms.uIntensity.value =
             configuration.meshes.particles.shaders.intensity)
 
-const utilityFunctionsObject = {
-    runScaleAnimation: _ => {
-        console.log(configuration.meshes.scale)
+const utilityFunctionsObject = (_ => {
+    const scaleAnimation = _ => gsap.to(particles.material.uniforms.uScale, {
+        value: configuration.meshes.particles.shaders.intensity * 2,
+        ease: 'expo.inOut',
+        duration: 2,
+        onComplete: _ => configuration.meshes.particles.shaders.intensity *= 2,
+        onReverseComplete: _ => configuration.meshes.particles.shaders.intensity /= 2,
+    })
+    let animationResult = null
+    return {
+        scaleAnimationForward: _ => animationResult = scaleAnimation(),
+        scaleAnimationBackwards: _ => animationResult?.reverse()
     }
-}
+})()
 
 const actionsFolder = gui.addFolder('actions')
-actionsFolder
-    .add(utilityFunctionsObject, 'runScaleAnimation')
+const forwardAnimActionController = actionsFolder
+    .add(utilityFunctionsObject, 'scaleAnimationForward')
+const backwardsAnimActionController = actionsFolder
+    .add(utilityFunctionsObject, 'scaleAnimationBackwards')
+const toggleAnimActionButtons = (toEnable, toDisable) => {
+    toEnable['__li'].style.pointerEvents = 'none'
+    toEnable['__li'].style.opacity = 0.5
+    toDisable['__li'].style.pointerEvents = 'all'
+    toDisable['__li'].style.opacity = 1
+}
+forwardAnimActionController.onFinishChange(_ => {
+    toggleAnimActionButtons(forwardAnimActionController, backwardsAnimActionController)
+})
+backwardsAnimActionController.onFinishChange(_ => {
+    toggleAnimActionButtons(backwardsAnimActionController, forwardAnimActionController)
+})
+
 
 // Camera
 const camera = new THREE.PerspectiveCamera(
@@ -205,7 +235,12 @@ renderer.render(scene, camera)
 // Controls
 const controls = new OrbitControls(camera, canvasElement)
 controls.enableDamping = true
-controls.enabled = true
+controls.enabled = configuration.scene.controls.enabled
+
+sceneFolder
+    .add(configuration.scene.controls, 'enabled')
+    .name('Controls enabled')
+    .onFinishChange(_ => controls.enabled = configuration.scene.controls.enabled)
 
 const clock = new THREE.Clock()
 let elapsedTime = 0
