@@ -118,7 +118,6 @@ sceneFolder
     .onFinishChange(_ => particles.material.uniforms.uRotationSpeed.value =
         configuration.scene.animations.rotationSpeed)
 
-
 const centralObject = new THREE.Mesh(
     new THREE.IcosahedronGeometry(0.7, 0),
     new THREE.MeshPhysicalMaterial({
@@ -211,11 +210,11 @@ particlesGuiFolder
 
 const utilityFunctionsObject = (_ => {
     const scaleAnimation = _ => gsap.to(particles.material.uniforms.uScale, {
-        value: configuration.meshes.particles.shaders.intensity * 2,
+        value: configuration.meshes.scale * 2,
         ease: 'expo.inOut',
         duration: 2,
-        onComplete: _ => configuration.meshes.particles.shaders.intensity *= 2,
-        onReverseComplete: _ => configuration.meshes.particles.shaders.intensity /= 2,
+        onComplete: _ => configuration.meshes.scale *= 2,
+        onReverseComplete: _ => configuration.meshes.scale /= 2,
     })
     let animationResult = null
     return {

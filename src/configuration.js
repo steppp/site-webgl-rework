@@ -2,7 +2,7 @@ const parameters = {
     scene: {
         helpers: {
             axes: {
-                enabled: true
+                enabled: false
             }
         },
         background: 0x15151b,
