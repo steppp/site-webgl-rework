@@ -4,9 +4,12 @@ import * as dat from 'dat.gui'
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls'
 import configuration from './configuration'
 import { gsap } from 'gsap'
+import ScrollTrigger from 'gsap/ScrollTrigger'
 
 import particleVertexShader from './shaders/vertex.glsl'
 import particleFragmentShader from './shaders/fragment.glsl'
+
+gsap.registerPlugin(ScrollTrigger)
 
 // Scene
 const scene = new THREE.Scene()
@@ -118,34 +121,6 @@ sceneFolder
     .onFinishChange(_ => particles.material.uniforms.uRotationSpeed.value =
         configuration.scene.animations.rotationSpeed)
 
-const centralObject = new THREE.Mesh(
-    new THREE.IcosahedronGeometry(0.7, 0),
-    new THREE.MeshPhysicalMaterial({
-        thickness: 3.0,
-        roughness: 0.1,
-        transmission: 0.99,
-        ior: 1.2,
-    })
-)
-scene.add(centralObject)
-
-const secondaryBox = new THREE.Mesh(
-    new THREE.BoxGeometry(0.5, 0.5, 0.5, 16, 16, 16),
-    new THREE.MeshBasicMaterial({
-        color: 0xff0000
-    })
-)
-scene.add(secondaryBox)
-secondaryBox.position.setZ(-1)
-
-const hemishpereLight = new THREE.HemisphereLight(
-    0xffffff,
-    0xf13dd6,
-    0.4
-)
-scene.add(hemishpereLight)
-
-
 const meshFolder = gui.addFolder('mesh')
 meshFolder
     .add(configuration.meshes.sphere.geometry, 'segments')
@@ -240,6 +215,18 @@ forwardAnimActionController.onFinishChange(_ => {
 backwardsAnimActionController.onFinishChange(_ => {
     toggleAnimActionButtons(backwardsAnimActionController, forwardAnimActionController)
 })
+
+gsap.to(particles.material.uniforms.uScale, {
+        value: configuration.meshes.scale * 2,
+        ease: 'expo.inOut',
+        duration: 2,
+        onComplete: _ => configuration.meshes.scale *= 2,
+        onReverseComplete: _ => configuration.meshes.scale /= 2,
+        scrollTrigger: {
+            trigger: '#blog',
+            scrub: true
+        }
+    })
 
 
 // Camera
