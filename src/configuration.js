@@ -10,7 +10,7 @@ const parameters = {
             rotationSpeed: -0.05
         },
         controls: {
-            enabled: true
+            enabled: false
         }
     },
     meshes: {
