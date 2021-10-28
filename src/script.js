@@ -5,9 +5,14 @@ import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls'
 import configuration from './configuration'
 import { gsap } from 'gsap'
 import ScrollTrigger from 'gsap/ScrollTrigger'
+import experience from './experience';
 
 import particleVertexShader from './shaders/vertex.glsl'
 import particleFragmentShader from './shaders/fragment.glsl'
+
+
+const canvasElement = document.querySelector('canvas.webgl')
+experience.run(canvasElement)
 
 gsap.registerPlugin(ScrollTrigger)
 
@@ -20,8 +25,6 @@ const sizes = {
     width: window.innerWidth,
     height: window.innerHeight
 }
-
-const canvasElement = document.querySelector('canvas.webgl')
 
 // Renderer
 const renderer = new THREE.WebGLRenderer({
@@ -216,17 +219,13 @@ backwardsAnimActionController.onFinishChange(_ => {
     toggleAnimActionButtons(backwardsAnimActionController, forwardAnimActionController)
 })
 
-gsap.to(particles.material.uniforms.uScale, {
-        value: configuration.meshes.scale * 2,
-        ease: 'expo.inOut',
-        duration: 2,
-        onComplete: _ => configuration.meshes.scale *= 2,
-        onReverseComplete: _ => configuration.meshes.scale /= 2,
-        scrollTrigger: {
-            trigger: '#blog',
-            scrub: true
-        }
-    })
+// gsap.to(particles.material.uniforms.uScale, {
+//         value: configuration.meshes.scale * 2,
+//         ease: 'expo.inOut',
+//         duration: 2,
+//         onComplete: _ => configuration.meshes.scale *= 2,
+//         onReverseComplete: _ => configuration.meshes.scale /= 2,
+//     })
 
 
 // Camera
