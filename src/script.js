@@ -12,7 +12,7 @@ import particleFragmentShader from './shaders/fragment.glsl'
 
 
 const canvasElement = document.querySelector('canvas.webgl')
-experience.run(canvasElement)
+const { renderer, scene } = experience.run(canvasElement)
 
 gsap.registerPlugin(ScrollTrigger)
 
@@ -201,17 +201,18 @@ const utilityFunctionsObject = (_ => {
     }
 })()
 
-const actionsFolder = gui.addFolder('actions')
-const forwardAnimActionController = actionsFolder
-    .add(utilityFunctionsObject, 'scaleAnimationForward')
-const backwardsAnimActionController = actionsFolder
-    .add(utilityFunctionsObject, 'scaleAnimationBackwards')
 const toggleAnimActionButtons = (toEnable, toDisable) => {
     toEnable['__li'].style.pointerEvents = 'none'
     toEnable['__li'].style.opacity = 0.5
     toDisable['__li'].style.pointerEvents = 'all'
     toDisable['__li'].style.opacity = 1
 }
+const actionsFolder = gui.addFolder('actions')
+const forwardAnimActionController = actionsFolder
+    .add(utilityFunctionsObject, 'scaleAnimationForward')
+const backwardsAnimActionController = actionsFolder
+    .add(utilityFunctionsObject, 'scaleAnimationBackwards')
+
 forwardAnimActionController.onFinishChange(_ => {
     toggleAnimActionButtons(forwardAnimActionController, backwardsAnimActionController)
 })
