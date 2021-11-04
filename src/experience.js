@@ -1,5 +1,6 @@
 import configuration from './configuration'
 import sizeManager from './sizeManager'
+import helpersManager from './helpersManager'
 import * as THREE from 'three'
 
 const init = (targetCanvas) => {
@@ -19,14 +20,15 @@ const init = (targetCanvas) => {
     }
 }
 
-const setupScene = () => {
-    // TODO
+const setupScene = (scene) => {
+    helpersManager.addAxesHelper(scene, configuration.scene.helpers.axes)
 }
 
 const experience = (() => {
     return {
         run: (canvasElement) => {
-            const coreExpObj = init(canvasElement)
+            const { renderer, scene } = init(canvasElement)
+            setupScene(scene)
 
             return coreExpObj
         }

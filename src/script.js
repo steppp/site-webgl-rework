@@ -16,24 +16,7 @@ const { renderer, scene } = experience.run(canvasElement)
 
 gsap.registerPlugin(ScrollTrigger)
 
-// Scene
-const scene = new THREE.Scene()
-scene.background = new THREE.Color(configuration.scene.background)
 
-// Sizes
-const sizes = {
-    width: window.innerWidth,
-    height: window.innerHeight
-}
-
-// Renderer
-const renderer = new THREE.WebGLRenderer({
-    canvas: canvasElement,
-    powerPreference: 'high-performance'
-})
-renderer.setSize(sizes.width, sizes.height)
-// having a pixel ratio higher than 2 does not provide noticeable improvements while greatly affects performance
-renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2))
 
 // Debug UI
 const gui = new dat.GUI({
@@ -43,12 +26,6 @@ const sceneFolder = gui.addFolder('scene')
 sceneFolder
     .addColor(configuration.scene, 'background')
     .onChange(_ => scene.background.set(configuration.scene.background))
-
-const mousePos = new THREE.Vector2()
-window.addEventListener('mousemove', ev => {
-    mousePos.x = ev.clientX / sizes.width * 2 - 1
-    mousePos.y = - (ev.clientY / sizes.height) * 2 + 1
-})
 
 const axesHelper = new THREE.AxesHelper(1)
 scene.add(axesHelper)

@@ -4,7 +4,7 @@ const sizes = {
     height: window.innerHeight     
 }
 
-const windowResizeHandler = () => {
+let windowResizeHandler = () => {
     sizes.width = window.innerWidth
     sizes.height = window.innerHeight
 }
@@ -13,6 +13,7 @@ const windowResizeHandler = () => {
 window.addEventListener('resize', windowResizeHandler)
 
 const sizeManager = (() => {
+
     return {
         sizes,
         setWindowResizeCallback: (callback) => {
@@ -21,6 +22,6 @@ const sizeManager = (() => {
             window.addEventListener('resize', windowResizeHandler)
         }
     }
-})();
+})()
 
-export default sizeManager;
+export default sizeManager
