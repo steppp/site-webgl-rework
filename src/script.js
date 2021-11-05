@@ -18,15 +18,6 @@ gsap.registerPlugin(ScrollTrigger)
 
 
 
-// Debug UI
-const gui = new dat.GUI({
-    width: 500
-})
-const sceneFolder = gui.addFolder('scene')
-sceneFolder
-    .addColor(configuration.scene, 'background')
-    .onChange(_ => scene.background.set(configuration.scene.background))
-
 const axesHelper = new THREE.AxesHelper(1)
 scene.add(axesHelper)
 axesHelper.visible = configuration.scene.helpers.axes.enabled

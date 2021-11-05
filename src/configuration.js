@@ -2,6 +2,7 @@ const parameters = {
     scene: {
         helpers: {
             axes: {
+                guiName: 'Axes helper',
                 enabled: false
             }
         },
