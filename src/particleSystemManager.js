@@ -77,15 +77,10 @@ const buildParticleSystem = (geom, additionalUniforms) => {
 }
 
 const updateMaterialUniforms = (updatedUniforms) => {
-    // use again object destructuring assignment to update properties of the first object
     for (const propName of Object.keys(updatedUniforms)) {
         particleSystem.material.uniforms[propName].value =
             updatedUniforms[propName].value
     }
-    // particleSystem.material.uniforms = {
-    //     ...particleSystem.material.uniforms,
-    //     ...updatedUniforms
-    // }
 }
 
 const updateSceneParticles = (scene, particlesMesh) => {

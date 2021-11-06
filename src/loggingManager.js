@@ -13,14 +13,13 @@ const log = (severity, msg, ...params) => {
         case 'info':
         case 'warn':
         case 'error':
-            console[severity].call(null, msg, params)
+            console[severity].call(null, msg, ...params)
             break;
     
         default:
             console.log(msg, params)
             break;
     }
-    console.log()
 }
 
 const updateConfig = config => {

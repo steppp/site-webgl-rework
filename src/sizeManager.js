@@ -4,21 +4,23 @@ const sizes = {
     height: window.innerHeight     
 }
 
-let windowResizeHandler = () => {
+let windowResizeHandler = (sizes) => {}
+
+let defaultWindowResizeHandler = () => {
     sizes.width = window.innerWidth
     sizes.height = window.innerHeight
+
+    windowResizeHandler(sizes)
 }
 
 // TODO: move all the event listeners into a dedicated module
-window.addEventListener('resize', windowResizeHandler)
+window.addEventListener('resize', defaultWindowResizeHandler)
 
 const sizeManager = (() => {
     return {
         sizes,
         setWindowResizeCallback: (callback) => {
-            window.removeEventListener('resize', windowResizeHandler)
             windowResizeHandler = callback
-            window.addEventListener('resize', windowResizeHandler)
         }
     }
 })()

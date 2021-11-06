@@ -8,9 +8,6 @@ import ScrollTrigger from 'gsap/ScrollTrigger'
 import experience from './experience';
 import sceneManager from './sceneManager'
 
-import particleVertexShader from './shaders/vertex.glsl'
-import particleFragmentShader from './shaders/fragment.glsl'
-
 const canvasElement = document.querySelector('canvas.webgl')
 const { renderer, scene } = experience.run(canvasElement)
 
@@ -137,64 +134,7 @@ const { renderer, scene } = experience.run(canvasElement)
 // //         onReverseComplete: _ => configuration.meshes.scale /= 2,
 // //     })
 
-
-// // Camera
-// const camera = new THREE.PerspectiveCamera(
-//     configuration.camera.fov, 
-//     configuration.camera.aspectRatio,
-//     configuration.camera.near,
-//     configuration.camera.far
-// )
-// camera.position.set(
-//     configuration.camera.initialPosition.x,
-//     configuration.camera.initialPosition.y,
-//     configuration.camera.initialPosition.z
-// )
-// camera.lookAt(particles.position)
-// scene.add(camera)
-
-// renderer.render(scene, camera)
-
-// // Controls
-// const controls = new OrbitControls(camera, canvasElement)
-// controls.enableDamping = true
-// controls.enabled = configuration.scene.controls.enabled
-
 // sceneFolder
 //     .add(configuration.scene.controls, 'enabled')
 //     .name('Controls enabled')
 //     .onFinishChange(_ => controls.enabled = configuration.scene.controls.enabled)
-
-// const clock = new THREE.Clock()
-// let elapsedTime = 0
-
-// const tick = () => {
-//     particles.material.uniforms.uRand.value = Math.random()
-
-//     elapsedTime = clock.getElapsedTime()
-//     particlesMaterial.uniforms.uTime.value = elapsedTime
-//     particlesMaterial.uniforms.uMousePos.value.x = mousePos.x
-//     particlesMaterial.uniforms.uMousePos.value.y = mousePos.y
-
-//     controls.update()
-//     renderer.render(scene, camera)
-
-//     window.requestAnimationFrame(tick)
-// }
-
-// tick()
-
-// window.addEventListener('resize', () => {
-//     // update sizes
-//     sizes.width = window.innerWidth
-//     sizes.height = window.innerHeight
-
-//     // update camera's aspect ratio
-//     configuration.camera.aspectRatio = sizes.width / sizes.height
-//     camera.aspect = configuration.camera.aspectRatio
-//     // must be changed after changing the parameters
-//     camera.updateProjectionMatrix()
-
-//     renderer.setSize(sizes.width, sizes.height)
-//     renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2))
-// })

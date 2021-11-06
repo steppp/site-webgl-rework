@@ -8,6 +8,10 @@ import particlesSystemManager from './particleSystemManager'
 import particleVertexShader from './shaders/vertex.glsl'
 import particleFragmentShader from './shaders/fragment.glsl'
 import mouseManager from './mouseManager'
+import guiManager from './guiManager'
+import controls from './controls'
+import titleManager from './titleManager'
+import lightManager from './lightManager'
 
 
 const geometries = [
@@ -115,10 +119,50 @@ const setupScene = (scene) => {
         lookingAtPos: mainMesh.position
     })
 
+    titleManager
+        .addTitle({ scene, text: 'SRAND.it' })
+        .then(textMesh => {
+            textMesh.position.set(
+                camera.position.x * 0.6,
+                0.7,
+                camera.position.z * 0.6
+            )
+            textMesh.lookAt(camera.position)
+
+            mouseManager.setMouseMoveCallback((pos) => {
+                // textMesh.lookAt(
+                //     // TODO: here there should be the position of a point
+                //     // in the plane which is perpendicular to the direction
+                //     // of the camera
+                // )
+            })
+        })
+
+    lightManager.addLights({ scene })
+
     return { mainMesh, camera }
 }
 
-const startRunLoop = ({scene, mainMesh, renderer, camera}) => {
+const setupCustomHandlers = ({ renderer, camera }) => {
+    sizeManager.setWindowResizeCallback(sizes => {
+        camera.aspect
+            = configuration.camera.aspectRatio
+            = sizes.width / sizes.height
+        camera.updateProjectionMatrix()
+
+        renderer.setSize(sizes.width, sizes.height)
+        renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2))
+    })
+}
+
+const setupGui = () => {
+    guiManager.createFolders([
+        'scene', 'mesh', 'particles', 'actions'
+    ])
+
+}
+
+const startRunLoop = ({scene, mainMesh, renderer, camera, controls}) => {
     loggingManager.log('info', 'Starting run loop..')
 
     const clock = new THREE.Clock()
@@ -143,6 +187,8 @@ const startRunLoop = ({scene, mainMesh, renderer, camera}) => {
 
         renderer.render(scene, camera)
         window.requestAnimationFrame(tick)
+
+        controls.update()
     }
 
     tick()
@@ -153,9 +199,12 @@ const experience = (() => {
         run: (canvasElement) => {
             const { renderer, scene } = init(canvasElement)
             const { mainMesh, camera } = setupScene(scene)
+            setupCustomHandlers({ renderer, camera })
+            setupGui()
+            const sceneControls = controls.buildControls({ camera, canvasElement })
 
             renderer.render(scene, camera)
-            startRunLoop({ scene, mainMesh, renderer, camera })
+            startRunLoop({ scene, mainMesh, renderer, camera, controls: sceneControls })
 
             return { renderer, scene }
         }
