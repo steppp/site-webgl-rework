@@ -3,7 +3,7 @@ const parameters = {
         helpers: {
             axes: {
                 guiName: 'Axes helper',
-                enabled: false
+                visible: false
             }
         },
         background: 0x15151b,

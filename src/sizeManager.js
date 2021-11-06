@@ -13,7 +13,6 @@ let windowResizeHandler = () => {
 window.addEventListener('resize', windowResizeHandler)
 
 const sizeManager = (() => {
-
     return {
         sizes,
         setWindowResizeCallback: (callback) => {

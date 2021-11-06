@@ -1,0 +1,44 @@
+
+length = 4
+
+
+iter index:     0   1   2   3   4   5   6   7   8   9       =>      i
+
+/ length -1:    0   0   0   1   1   1   2   2   2   3
+
+& 1:            0   0   0   1   1   1   0   0   0   1       =>      p
+
+-p:             0   0   0   -1  -1  -1  0   0   0   -1
+
+-p*2 + 1:       1   1   1   -1  -1  -1  1   1   1   -1       =>      t
+
+
+i mod length-1: 0   1   2   0   1   2   0   1   2   0
+
+*t:             0   1   2   0  -1  -2   0   1   2   0       =>      u
+
+
+p*length-1:     0   0   0   3   3   3   0   0   0   3       =>      q
+
+q + u:          0   1   2   3   2   1   0   1   2   3
+
+
+
+target:         0   1   2   3   2   1   0   1   2   3
+
+
+lengthMinOne = length - 1
+
+p = (i / lengthMinOne) & 1
+t = 1 - 2 * p
+u = (i % lengthMinOne) * t
+q = p * lengthMinOne
+target = q + u
+
+target = (((i / lengthMinOne) & 1) * lengthMinOne) + 
+    ((i % lengthMinOne) * (1 - 2 * ((i / lengthMinOne) & 1)))
+target = (((i / lengthMinOne) & 1) * lengthMinOne) + 
+    ((i % lengthMinOne) - (2 * ((i / lengthMinOne) & 1) * (i % lengthMinOne)))
+target = (((i / lengthMinOne) & 1) * lengthMinOne) + 
+    ((i % lengthMinOne) * (1 - (2 * ((i / lengthMinOne) & 1))))
+

@@ -1,3 +1,4 @@
+import { AxesHelper } from "three"
 
 const helpers = []
 
@@ -12,7 +13,7 @@ const baseHelperAddedHandler = (helperObject) => {
 const addAxesHelper = (scene, {size, enabled}) => {
     size ??= 1
 
-    const axesHelper = new THREE.AxesHelper(size)
+    const axesHelper = new AxesHelper(size)
     axesHelper.visible = enabled
 
     scene.add(axesHelper)

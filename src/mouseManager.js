@@ -1,5 +1,6 @@
+import { Vector2 } from "three"
 
-const mousePos = new THREE.Vector2()
+const mousePos = new Vector2
 
 let mouseMoveHandler = ev => {
     mousePos.x = ev.clientX / sizes.width * 2 - 1

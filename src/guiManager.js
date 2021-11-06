@@ -38,7 +38,7 @@ const addObjectVisibilityGui = ({targetObj, folderName, objectConfig}) => {
         .onFinishChange(_ => targetObj.visible = objectConfig.visible)
 }
 
-const guiManager = (initOptions) => {
+const guiManager = ((initOptions) => {
     gui = new dat.GUI(initOptions)
 
     return {
@@ -47,6 +47,6 @@ const guiManager = (initOptions) => {
         addSceneBackgroundGui,
         addObjectVisibilityGui
     }
-}
+})()
 
 export default guiManager
