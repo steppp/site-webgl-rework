@@ -8,22 +8,22 @@ const addTitle = async ({scene, text}) => {
     const font = await fontLoader.loadAsync('/fonts/droid_sans_bold.typeface.json')
     const textGeometry = new TextGeometry(text, {
         font,
-        size: 0.2,
+        size: 0.16,
         height: 0.04
     })
     const textSideMaterial = new THREE.MeshPhongMaterial({
-        color: 0xDDF093,
-        flatShading: true
+        color: 0x65B891,
+        // flatShading: true
     })
     const textFaceMaterial = new THREE.MeshPhongMaterial({
-        color: 0x90E39A
+        color: 0x4E878C
     })
 
     const textMesh = new THREE.Mesh(
         textGeometry, [textFaceMaterial, textSideMaterial]
     )
     textGeometry.center()
-    textGeometry.translate(0, 0, -0.5)
+    textGeometry.translate(0, 0, -0.1)
 
     scene.add(textMesh)
     return textMesh

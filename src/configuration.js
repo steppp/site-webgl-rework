@@ -3,7 +3,8 @@ const parameters = {
         helpers: {
             axes: {
                 guiName: 'Axes helper',
-                visible: false
+                visible: false,
+                size: 1
             }
         },
         background: 0x15151b,
@@ -47,9 +48,9 @@ const parameters = {
         near: 0.01,
         far: 10,
         initialPosition: {
-            x: 0.7,
-            y: 0.7,
-            z: 1.3
+            x: 0,
+            y: 1.5,
+            z: 1.7
         }
     }
 }

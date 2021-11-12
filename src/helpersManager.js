@@ -10,11 +10,11 @@ const baseHelperAddedHandler = (helperObject) => {
     onHelperAddedHandler?.call(this, helperObject, helpers)
 }
 
-const addAxesHelper = (scene, {size, enabled}) => {
+const addAxesHelper = (scene, {size, visible}) => {
     size ??= 1
 
     const axesHelper = new AxesHelper(size)
-    axesHelper.visible = enabled
+    axesHelper.visible = visible
 
     scene.add(axesHelper)
     baseHelperAddedHandler(axesHelper)

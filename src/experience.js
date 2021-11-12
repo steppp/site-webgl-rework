@@ -4,6 +4,7 @@ import helpersManager from './helpersManager'
 import loggingManager from './loggingManager'
 import * as THREE from 'three'
 import particlesSystemManager from './particleSystemManager'
+import { gsap } from 'gsap'
 
 import particleVertexShader from './shaders/vertex.glsl'
 import particleFragmentShader from './shaders/fragment.glsl'
@@ -124,17 +125,29 @@ const setupScene = (scene) => {
         .then(textMesh => {
             textMesh.position.set(
                 camera.position.x * 0.6,
-                0.7,
+                1.2,
                 camera.position.z * 0.6
             )
             textMesh.lookAt(camera.position)
 
-            mouseManager.setMouseMoveCallback((pos) => {
-                // textMesh.lookAt(
-                //     // TODO: here there should be the position of a point
-                //     // in the plane which is perpendicular to the direction
-                //     // of the camera
-                // )
+            mouseManager.addMouseMoveCallback((pos) => {
+                textMesh.rotation.set(-0.4 - pos.y / 3, pos.x / 7, 0)
+            })
+
+            mouseManager.addMouseLeaveCallback((ev) => {
+                const dummyMesh = new THREE.Mesh(
+                    new THREE.BufferGeometry(),
+                    new THREE.Material())
+                dummyMesh.position.setFromMatrixPosition(textMesh.matrix)
+                scene.add(dummyMesh)
+
+                dummyMesh.lookAt(camera.position)
+                gsap.to(textMesh.rotation, {
+                    x: dummyMesh.rotation.x,
+                    y: dummyMesh.rotation.y,
+                    z: dummyMesh.rotation.z,
+                    duration: 0.2
+                })
             })
         })
 
@@ -159,7 +172,6 @@ const setupGui = () => {
     guiManager.createFolders([
         'scene', 'mesh', 'particles', 'actions'
     ])
-
 }
 
 const startRunLoop = ({scene, mainMesh, renderer, camera, controls}) => {
