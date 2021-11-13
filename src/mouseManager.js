@@ -23,21 +23,33 @@ let defaultLeaveHandler = ev => {
 }
 
 const addCallbackToHandlersChain = (array, callback) => {
-    if (callback && 'function' === typeof(callback)) {
+    if (callback && 'function' === typeof (callback)) {
         array.push(callback)
     }
-} 
+}
+
+let mouseEnterHandlers = []
+let defaultEnterHandler = ev => {
+    // add default behavior
+
+    for (const handler of mouseEnterHandlers) {
+        handler(mousePos)
+    }
+}
 
 const mouseManager = (() => {
     window.addEventListener('mousemove', defaultMoveHandler)
-    document.addEventListener('mouseout', defaultLeaveHandler)
+    window.addEventListener('mouseout', defaultLeaveHandler)
+    window.addEventListener('mouseover', defaultEnterHandler)
 
     return {
         mousePos,
         addMouseMoveCallback: (handler) =>
             addCallbackToHandlersChain(mouseMoveHandlers, handler),
         addMouseLeaveCallback: (handler) =>
-            addCallbackToHandlersChain(mouseLeaveHandlers, handler)
+            addCallbackToHandlersChain(mouseLeaveHandlers, handler),
+        addMouseEnterCallback: (handler) =>
+            addCallbackToHandlersChain(mouseEnterHandlers, handler)
     }
 })()
 

@@ -130,11 +130,23 @@ const setupScene = (scene) => {
             )
             textMesh.lookAt(camera.position)
 
+            let enterAnimation = null
             mouseManager.addMouseMoveCallback((pos) => {
+                if (enterAnimation) {                    
+                    // TODO: refactor this
+                    enterAnimation.kill()
+                    enterAnimation = gsap.to(textMesh.rotation, {
+                        x: -0.4 - pos.y / 3,
+                        y: pos.x / 7,
+                        duration: 0.2,
+                    })
+                    return
+                }
+
                 textMesh.rotation.set(-0.4 - pos.y / 3, pos.x / 7, 0)
             })
 
-            mouseManager.addMouseLeaveCallback((ev) => {
+            mouseManager.addMouseLeaveCallback(() => {
                 const dummyMesh = new THREE.Mesh(
                     new THREE.BufferGeometry(),
                     new THREE.Material())
@@ -146,7 +158,15 @@ const setupScene = (scene) => {
                     x: dummyMesh.rotation.x,
                     y: dummyMesh.rotation.y,
                     z: dummyMesh.rotation.z,
-                    duration: 0.2
+                    duration: 0.2,
+                })
+            })
+
+            mouseManager.addMouseEnterCallback((pos) => {
+                enterAnimation = gsap.to(textMesh.rotation, {
+                    x: -0.4 - pos.y / 3,
+                    y: pos.x / 7,
+                    duration: 0.1,
                 })
             })
         })

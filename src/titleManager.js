@@ -16,7 +16,7 @@ const addTitle = async ({scene, text}) => {
         // flatShading: true
     })
     const textFaceMaterial = new THREE.MeshPhongMaterial({
-        color: 0x4E878C
+        color: 0x4E878C,
     })
 
     const textMesh = new THREE.Mesh(
@@ -24,6 +24,8 @@ const addTitle = async ({scene, text}) => {
     )
     textGeometry.center()
     textGeometry.translate(0, 0, -0.1)
+    textMesh.castShadow = true
+    textMesh.receiveShadow = true
 
     scene.add(textMesh)
     return textMesh
