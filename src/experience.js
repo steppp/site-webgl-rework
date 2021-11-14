@@ -139,6 +139,9 @@ const setupScene = (scene) => {
                         x: -0.4 - pos.y / 3,
                         y: pos.x / 7,
                         duration: 0.2,
+                        onComplete: () => {
+                            enterAnimation = null
+                        }
                     })
                     return
                 }
