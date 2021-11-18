@@ -1,6 +1,7 @@
 import * as THREE from 'three'
 import { TextGeometry } from 'three/examples/jsm/geometries/TextGeometry.js'
 import { FontLoader } from 'three/examples/jsm/loaders/FontLoader.js'
+import { gsap } from 'gsap'
 
 /** @type {THREE.Scene} */
 let targetScene = null
@@ -45,6 +46,13 @@ const onFontLoaded = (text, font) => {
 
     targetScene.add(textMesh)
     titleMesh = textMesh
+
+    textMesh.position.set(
+        mainCamera.position.x * 0.6,
+        1.2,
+        mainCamera.position.z * 0.6
+    )
+    textMesh.lookAt(mainCamera.position)
 }
 
 /**
@@ -82,15 +90,43 @@ const forMainCamera = (camera) => {
 const usingPositionProvider = (provider) => {
     // one should pass an instance of the mouse manager (or maybe just the onmousemouve callback?)
     // and then this function will use the updates to transform the title mesh
+
+    let enterAnimation = null
+    provider.addMouseMoveCallback(pos => {
+        // TODO: avoid to store the animation in this, maybe store it in the provider object/pass it as an argument to this method?
+        if (enterAnimation) {                    
+            enterAnimation.kill()
+            enterAnimation = gsap.to(titleMesh.rotation, {
+                x: -0.4 - pos.y / 3, 
+                y: pos.x / 7,
+                duration: 0.2,
+                onComplete: () => {
+                    enterAnimation = null
+                }
+            })
+            return
+        }
+
+        titleMesh.rotation.set(-0.4 - pos.y / 3, pos.x / 7, 0)
+    })
+
+    provider.addMouseLeaveCallback(pos => {
+        console.log(pos)
+    })
+
+    provider.addMouseEnterCallback(pos => {
+        console.log(pos)
+    })
 }
 
 const titleBuilder = {
     forMainCamera,
     addTitle,
+    usingPositionProvider
 }
 
 const titleManager = {
-    forScene: ({scene}) => {
+    forScene: (scene) => {
         targetScene = scene
 
         return titleBuilder

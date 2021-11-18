@@ -121,58 +121,65 @@ const setupScene = (scene) => {
     })
 
     titleManager
-        .addTitle({ scene, text: 'SRAND.it' })
-        .then(textMesh => {
-            textMesh.position.set(
-                camera.position.x * 0.6,
-                1.2,
-                camera.position.z * 0.6
-            )
-            textMesh.lookAt(camera.position)
+        .forScene(scene)
+        .forMainCamera(camera)
+        // .addTitle(window.location.host.replace('www.', ''))
+        .addTitle('SRAND.it')
+        .usingPositionProvider(mouseManager)
 
-            let enterAnimation = null
-            mouseManager.addMouseMoveCallback((pos) => {
-                if (enterAnimation) {                    
-                    // TODO: refactor this
-                    enterAnimation.kill()
-                    enterAnimation = gsap.to(textMesh.rotation, {
-                        x: -0.4 - pos.y / 3,
-                        y: pos.x / 7,
-                        duration: 0.2,
-                        onComplete: () => {
-                            enterAnimation = null
-                        }
-                    })
-                    return
-                }
+    // titleManager
+    //     .addTitle({ scene, text: 'SRAND.it' })
+    //     .then(textMesh => {
+    //         textMesh.position.set(
+    //             camera.position.x * 0.6,
+    //             1.2,
+    //             camera.position.z * 0.6
+    //         )
+    //         textMesh.lookAt(camera.position)
 
-                textMesh.rotation.set(-0.4 - pos.y / 3, pos.x / 7, 0)
-            })
+    //         let enterAnimation = null
+    //         mouseManager.addMouseMoveCallback((pos) => {
+    //             if (enterAnimation) {                    
+    //                 // TODO: refactor this
+    //                 enterAnimation.kill()
+    //                 enterAnimation = gsap.to(textMesh.rotation, {
+    //                     x: -0.4 - pos.y / 3,
+    //                     y: pos.x / 7,
+    //                     duration: 0.2,
+    //                     onComplete: () => {
+    //                         enterAnimation = null
+    //                     }
+    //                 })
+    //                 return
+    //             }
 
-            mouseManager.addMouseLeaveCallback(() => {
-                const dummyMesh = new THREE.Mesh(
-                    new THREE.BufferGeometry(),
-                    new THREE.Material())
-                dummyMesh.position.setFromMatrixPosition(textMesh.matrix)
-                scene.add(dummyMesh)
+    //             textMesh.rotation.set(-0.4 - pos.y / 3, pos.x / 7, 0)
+    //         })
 
-                dummyMesh.lookAt(camera.position)
-                gsap.to(textMesh.rotation, {
-                    x: dummyMesh.rotation.x,
-                    y: dummyMesh.rotation.y,
-                    z: dummyMesh.rotation.z,
-                    duration: 0.2,
-                })
-            })
+    //         mouseManager.addMouseLeaveCallback(() => {
+    //             const dummyMesh = new THREE.Mesh(
+    //                 new THREE.BufferGeometry(),
+    //                 new THREE.Material())
+    //             dummyMesh.position.setFromMatrixPosition(textMesh.matrix)
+    //             scene.add(dummyMesh)
 
-            mouseManager.addMouseEnterCallback((pos) => {
-                enterAnimation = gsap.to(textMesh.rotation, {
-                    x: -0.4 - pos.y / 3,
-                    y: pos.x / 7,
-                    duration: 0.1,
-                })
-            })
-        })
+    //             dummyMesh.lookAt(camera.position)
+    //             gsap.to(textMesh.rotation, {
+    //                 x: dummyMesh.rotation.x,
+    //                 y: dummyMesh.rotation.y,
+    //                 z: dummyMesh.rotation.z,
+    //                 duration: 0.2,
+    //             })
+    //         })
+
+    //         mouseManager.addMouseEnterCallback((pos) => {
+    //             enterAnimation = gsap.to(textMesh.rotation, {
+    //                 x: -0.4 - pos.y / 3,
+    //                 y: pos.x / 7,
+    //                 duration: 0.1,
+    //             })
+    //         })
+    //     })
 
     lightManager.addLights({ scene })
 
