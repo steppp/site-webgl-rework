@@ -38,9 +38,9 @@ let defaultEnterHandler = ev => {
 }
 
 const mouseManager = (() => {
-    window.addEventListener('mousemove', defaultMoveHandler)
-    window.addEventListener('mouseout', defaultLeaveHandler)
-    window.addEventListener('mouseover', defaultEnterHandler)
+    document.body.addEventListener('mousemove', defaultMoveHandler)
+    document.body.addEventListener('mouseleave', defaultLeaveHandler)
+    document.body.addEventListener('mouseover', defaultEnterHandler)
 
     return {
         mousePos,

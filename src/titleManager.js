@@ -9,6 +9,8 @@ let targetScene = null
 let titleMesh = new THREE.Mesh()
 /** @type {THREE.Camera} */
 let mainCamera = new THREE.Camera()
+/** @type {gsap.core.Tween} */
+let titleAnimation = null
 
 let onTitleCreated = () => {
     // perform operations on the title mesh such as setting properties ecc..
@@ -64,7 +66,7 @@ const addTitle = (text) => {
     const fontLoader = new FontLoader()
 
     // const font = await fontLoader.loadAsync('/fonts/droid_sans_bold.typeface.json')
-    const font = fontLoader.load(
+    fontLoader.load(
         '/fonts/droid_sans_bold.typeface.json',
         // bind the text parameter to the function call
         onFontLoaded.bind(this, text)
@@ -83,6 +85,54 @@ const forMainCamera = (camera) => {
     return titleBuilder
 }
 
+const mouseMoveCallback = pos => {
+    if (titleAnimation) {                    
+        titleAnimation.kill()
+        titleAnimation = gsap.to(titleMesh.rotation, {
+            x: -0.4 - pos.y / 3, 
+            y: pos.x / 7,
+            duration: 0.2,
+            onComplete: () => {
+                titleAnimation = null
+            }
+        })
+        return
+    }
+
+    titleMesh.rotation.set(-0.4 - pos.y / 3, pos.x / 7, 0)
+}
+
+const mouseEnterCallback = pos => {
+    titleAnimation = gsap.to(titleMesh.rotation, {
+        x: -0.4 - pos.y / 3,
+        y: pos.x / 7,
+        duration: 0.1,
+    })
+}
+
+const mouseLeaveCallback = () => {
+    // dummy mesh with same position of the title mesh to compute the rotation
+    // to transition to using the lookAt() method
+    const rotationHelperMesh = new THREE.Mesh(
+        new THREE.BufferGeometry(),
+        new THREE.Material())
+    rotationHelperMesh.position.setFromMatrixPosition(titleMesh.matrix)
+    targetScene.add(rotationHelperMesh)
+
+    // rotate the dummy mesh
+    rotationHelperMesh.lookAt(mainCamera.position)
+    // use its new rotation value as the target value for the animation
+    gsap.to(titleMesh.rotation, {
+        x: rotationHelperMesh.rotation.x,
+        y: rotationHelperMesh.rotation.y,
+        z: rotationHelperMesh.rotation.z,
+        duration: 0.2,
+    })
+
+    // remove the dummy mesh since it is no longer needed
+    rotationHelperMesh.removeFromParent()
+}
+
 /**
  * Set the position provider which should contain some methods to provide position values to update title mesh parameters
  * @param {Object} provider Object which provides position updates to use to compute some values for the title mesh
@@ -91,32 +141,9 @@ const usingPositionProvider = (provider) => {
     // one should pass an instance of the mouse manager (or maybe just the onmousemouve callback?)
     // and then this function will use the updates to transform the title mesh
 
-    let enterAnimation = null
-    provider.addMouseMoveCallback(pos => {
-        // TODO: avoid to store the animation in this, maybe store it in the provider object/pass it as an argument to this method?
-        if (enterAnimation) {                    
-            enterAnimation.kill()
-            enterAnimation = gsap.to(titleMesh.rotation, {
-                x: -0.4 - pos.y / 3, 
-                y: pos.x / 7,
-                duration: 0.2,
-                onComplete: () => {
-                    enterAnimation = null
-                }
-            })
-            return
-        }
-
-        titleMesh.rotation.set(-0.4 - pos.y / 3, pos.x / 7, 0)
-    })
-
-    provider.addMouseLeaveCallback(pos => {
-        console.log(pos)
-    })
-
-    provider.addMouseEnterCallback(pos => {
-        console.log(pos)
-    })
+    provider.addMouseMoveCallback(mouseMoveCallback)
+    provider.addMouseLeaveCallback(mouseLeaveCallback)
+    provider.addMouseEnterCallback(mouseEnterCallback)
 }
 
 const titleBuilder = {
