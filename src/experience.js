@@ -185,10 +185,10 @@ const startRunLoop = ({scene, mainMesh, renderer, camera, controls}) => {
 const experience = (() => {
     return {
         run: (canvasElement) => {
+            setupGui()
             const { renderer, scene } = init(canvasElement)
             const { mainMesh, camera } = setupScene(scene)
             setupCustomHandlers({ renderer, camera })
-            setupGui()
             const sceneControls = controls.buildControls({ camera, canvasElement })
 
             renderer.render(scene, camera)

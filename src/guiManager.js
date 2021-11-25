@@ -29,10 +29,9 @@ const addSceneBackgroundGui = ({scene, folderName}) => {
         .onChange(_ => scene.background.set(mainConfig.scene.background))
 }
 
-const addPropertyToggleGui = ({targetObj, targetProp, folderName, objectConfig}) => {
+const addPropertyGui = ({targetObj, targetProp, folderName, objectConfig}) => {
     const targetFolder = getBuiltFolder(folderName)
 
-    // TODO: make this even more generic and pass the property name as a param?
     targetFolder.add(objectConfig, targetProp)
         .name(`${objectConfig.guiName} ${targetProp}`)
         .onFinishChange(_ => targetObj[targetProp] = objectConfig[targetProp])
@@ -45,7 +44,7 @@ const guiManager = ((initOptions) => {
         mainConfig,
         createFolders,
         addSceneBackgroundGui,
-        addPropertyToggleGui
+        addPropertyGui
     }
 })()
 
