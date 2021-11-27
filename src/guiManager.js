@@ -37,6 +37,12 @@ const addPropertyGui = ({targetObj, targetProp, folderName, objectConfig}) => {
         .onFinishChange(_ => targetObj[targetProp] = objectConfig[targetProp])
 }
 
+const addActionGui = ({targetObj, targetFuncName, folderName}) => {
+    const targetFolder = getBuiltFolder(folderName)
+
+    targetFolder.add(targetObj, targetFuncName);
+}
+
 const guiManager = ((initOptions) => {
     gui = new dat.GUI(initOptions)
 
@@ -44,7 +50,8 @@ const guiManager = ((initOptions) => {
         mainConfig,
         createFolders,
         addSceneBackgroundGui,
-        addPropertyGui
+        addPropertyGui,
+        addActionGui
     }
 })()
 

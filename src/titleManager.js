@@ -6,11 +6,14 @@ import { gsap } from 'gsap'
 /** @type {THREE.Scene} */
 let targetScene = null
 /** @type {THREE.Mesh} */
-let titleMesh = new THREE.Mesh()
+let titleMesh = null
 /** @type {THREE.Camera} */
 let mainCamera = new THREE.Camera()
 /** @type {gsap.core.Tween} */
 let titleAnimation = null
+
+/** @type {Promise<THREE.Mesh>} */
+let titleCreatedPromise;
 
 let onTitleCreated = () => {
     // perform operations on the title mesh such as setting properties ecc..
@@ -65,12 +68,11 @@ const onFontLoaded = (text, font) => {
 const addTitle = (text) => {
     const fontLoader = new FontLoader()
 
-    // const font = await fontLoader.loadAsync('/fonts/droid_sans_bold.typeface.json')
-    fontLoader.load(
-        '/fonts/droid_sans_bold.typeface.json',
-        // bind the text parameter to the function call
-        onFontLoaded.bind(this, text)
-    )
+    titleCreatedPromise = fontLoader.loadAsync('/fonts/droid_sans_bold.typeface.json')
+        .then(font => {
+            onFontLoaded(text, font)
+            return new Promise((resolve, _) => resolve(titleMesh))
+        })
 
     return titleBuilder
 }
@@ -136,6 +138,7 @@ const mouseLeaveCallback = () => {
 /**
  * Set the position provider which should contain some methods to provide position values to update title mesh parameters
  * @param {Object} provider Object which provides position updates to use to compute some values for the title mesh
+ * @returns Instance of the title builder, for easier call chaining
  */
 const usingPositionProvider = (provider) => {
     // one should pass an instance of the mouse manager (or maybe just the onmousemouve callback?)
@@ -144,12 +147,21 @@ const usingPositionProvider = (provider) => {
     provider.addMouseMoveCallback(mouseMoveCallback)
     provider.addMouseLeaveCallback(mouseLeaveCallback)
     provider.addMouseEnterCallback(mouseEnterCallback)
+
+    return titleBuilder
 }
+
+/**
+ * Returns the main title mesh prommise
+ * @returns Promise which completes when the title mesh has been instanciated
+ */
+const getBuildPromise = () => titleCreatedPromise
 
 const titleBuilder = {
     forMainCamera,
     addTitle,
-    usingPositionProvider
+    usingPositionProvider,
+    getBuildPromise
 }
 
 const titleManager = {

@@ -13,6 +13,7 @@ import guiManager from './guiManager'
 import controls from './controls'
 import titleManager from './titleManager'
 import lightManager from './lightManager'
+import customAnimations from './customAnimations'
 
 
 const geometries = [
@@ -52,7 +53,7 @@ const getNextGeometry = (() => {
     return () => {
         i += 1;
         // see /alternating_sequence_explain.txt
-        const idx = (((i / lengthMinOne) & 1) * lengthMinOne) + 
+        const idx = (((i / lengthMinOne) & 1) * lengthMinOne) +
             ((i % lengthMinOne) * (1 - 2 * ((i / lengthMinOne) & 1)))
         return geometries[idx]
     }
@@ -88,7 +89,7 @@ const updateMesh = (scene) => {
 
 const setupCamera = ({ scene, lookingAtPos }) => {
     const camera = new THREE.PerspectiveCamera(
-        configuration.camera.fov, 
+        configuration.camera.fov,
         configuration.camera.aspectRatio,
         configuration.camera.near,
         configuration.camera.far
@@ -115,21 +116,22 @@ const setupScene = (scene) => {
     })
 
     const mainMesh = updateMesh(scene)
-    const camera = setupCamera({ 
+    const camera = setupCamera({
         scene,
         lookingAtPos: mainMesh.position
     })
 
-    titleManager
+    const titleBuildPromise = titleManager
         .forScene(scene)
         .forMainCamera(camera)
         // .addTitle(window.location.host.replace('www.', ''))
         .addTitle('SRAND.it')
         .usingPositionProvider(mouseManager)
+        .getBuildPromise()
 
     lightManager.addLights({ scene })
 
-    return { mainMesh, camera }
+    return { mainMesh, titleBuildPromise, camera }
 }
 
 const setupCustomHandlers = ({ renderer, camera }) => {
@@ -150,7 +152,7 @@ const setupGui = () => {
     ])
 }
 
-const startRunLoop = ({scene, mainMesh, renderer, camera, controls}) => {
+const startRunLoop = ({ scene, mainMesh, renderer, camera, controls }) => {
     loggingManager.log('info', 'Starting run loop..')
 
     const clock = new THREE.Clock()
@@ -185,11 +187,36 @@ const startRunLoop = ({scene, mainMesh, renderer, camera, controls}) => {
 const experience = (() => {
     return {
         run: (canvasElement) => {
-            setupGui()
             const { renderer, scene } = init(canvasElement)
-            const { mainMesh, camera } = setupScene(scene)
+            const { mainMesh, titleBuildPromise, camera } = setupScene(scene)
             setupCustomHandlers({ renderer, camera })
             const sceneControls = controls.buildControls({ camera, canvasElement })
+
+            setupGui()
+            titleBuildPromise.then(titleMesh => {
+                const actionsObj = {
+                    initialAnimation: customAnimations.runInitialAnimation.bind(null, {
+                        mainMesh, titleMesh, options: {
+                            paused: false
+                        }
+                    }),
+                    initialAnimationReverse: customAnimations.runInitialAnimationReversed.bind(null, {
+                        options: {
+                            paused: false
+                        }
+                    })
+                }
+                guiManager.addActionGui({
+                    targetObj: actionsObj,
+                    targetFuncName: 'initialAnimation',
+                    folderName: 'actions'
+                })
+                guiManager.addActionGui({
+                    targetObj: actionsObj,
+                    targetFuncName: 'initialAnimationReverse',
+                    folderName: 'actions'
+                })
+            })
 
             renderer.render(scene, camera)
             startRunLoop({ scene, mainMesh, renderer, camera, controls: sceneControls })
