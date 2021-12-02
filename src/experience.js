@@ -135,10 +135,26 @@ const setupScene = (scene) => {
 }
 
 const setupCustomHandlers = ({ renderer, camera }) => {
+    const fov = configuration.camera.fov
+    const sceneAspectRatio = 0.8
+
     sizeManager.setWindowResizeCallback(sizes => {
         camera.aspect
             = configuration.camera.aspectRatio
             = sizes.width / sizes.height
+
+        // implement background-size: contains
+        // see https://discourse.threejs.org/t/keeping-an-object-scaled-based-on-the-bounds-of-the-canvas-really-battling-to-explain-this-one/17574/10
+        if (camera.aspect > sceneAspectRatio) {
+            // window too large
+            camera.fov = fov
+        } else {
+            // window too narrow
+            const cameraHeight = Math.tan(THREE.MathUtils.degToRad(fov / 2))
+            const ratio = camera.aspect / sceneAspectRatio
+            const newCameraHeight = cameraHeight / ratio
+            camera.fov = THREE.MathUtils.radToDeg(Math.atan(newCameraHeight)) * 2
+        }
         camera.updateProjectionMatrix()
 
         renderer.setSize(sizes.width, sizes.height)
@@ -150,6 +166,33 @@ const setupGui = () => {
     guiManager.createFolders([
         'scene', 'mesh', 'particles', 'actions'
     ])
+}
+
+const handleTitleBuiltPromise = (promise, mainMesh) => {
+    promise.then(titleMesh => {
+        const actionsObj = {
+            initialAnimation: customAnimations.runInitialAnimation.bind(null, {
+                mainMesh, titleMesh, options: {
+                    paused: false
+                }
+            }),
+            initialAnimationReverse: customAnimations.runInitialAnimationReversed.bind(null, {
+                options: {
+                    paused: false
+                }
+            })
+        }
+        guiManager.addActionGui({
+            targetObj: actionsObj,
+            targetFuncName: 'initialAnimation',
+            folderName: 'actions'
+        })
+        guiManager.addActionGui({
+            targetObj: actionsObj,
+            targetFuncName: 'initialAnimationReverse',
+            folderName: 'actions'
+        })
+    })
 }
 
 const startRunLoop = ({ scene, mainMesh, renderer, camera, controls }) => {
@@ -189,34 +232,12 @@ const experience = (() => {
         run: (canvasElement) => {
             const { renderer, scene } = init(canvasElement)
             const { mainMesh, titleBuildPromise, camera } = setupScene(scene)
+
             setupCustomHandlers({ renderer, camera })
             const sceneControls = controls.buildControls({ camera, canvasElement })
 
             setupGui()
-            titleBuildPromise.then(titleMesh => {
-                const actionsObj = {
-                    initialAnimation: customAnimations.runInitialAnimation.bind(null, {
-                        mainMesh, titleMesh, options: {
-                            paused: false
-                        }
-                    }),
-                    initialAnimationReverse: customAnimations.runInitialAnimationReversed.bind(null, {
-                        options: {
-                            paused: false
-                        }
-                    })
-                }
-                guiManager.addActionGui({
-                    targetObj: actionsObj,
-                    targetFuncName: 'initialAnimation',
-                    folderName: 'actions'
-                })
-                guiManager.addActionGui({
-                    targetObj: actionsObj,
-                    targetFuncName: 'initialAnimationReverse',
-                    folderName: 'actions'
-                })
-            })
+            handleTitleBuiltPromise(titleBuildPromise, mainMesh)
 
             renderer.render(scene, camera)
             startRunLoop({ scene, mainMesh, renderer, camera, controls: sceneControls })

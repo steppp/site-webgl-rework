@@ -16,9 +16,9 @@ const setup = (config) => {
 }
 
 const getDefaultMaterialUniforms = _ => ({
-    // uUnadjustedPointSize: {
-    //     value: configuration.meshes.particles.size
-    // },
+    uUnadjustedPointSize: {
+        value: configuration.meshes.particles.size
+    },
     uColor: {
         value: new THREE.Color(configuration.meshes.particles.color)
     },
@@ -52,7 +52,7 @@ const buildParticleSystem = (geom, additionalUniforms) => {
     // use object spread to merge the two uniforms objects
     // note that properties from obj2 will rewrite properties with
     // the same name from obj1
-    const materialUniforms ={ 
+    const materialUniforms = { 
         ...getDefaultMaterialUniforms(),    // obj1
         ...additionalUniforms               // obj2
     }

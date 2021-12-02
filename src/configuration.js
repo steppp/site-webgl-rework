@@ -33,7 +33,7 @@ const parameters = {
             }
         },
         particles: {
-            size: 3,
+            size: 2,
             color: 0x74c9f5,
             shaders: {
                 frequency: 2,
