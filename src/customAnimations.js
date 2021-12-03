@@ -3,6 +3,8 @@ import * as THREE from "three"
 
 /** @type {gsap.core.Tween} */
 let initialAnimation
+/** @type {Array.<gsap.core.Tween>} */
+let forwardAnimationsStack = []
 /** @type {gsap.core.Tween} */
 let runningAnimation
 
@@ -31,15 +33,13 @@ const runInitialAnimation = ({mainMesh, titleMesh, options}) => {
     // timeline which holds all the animations that have to run
     const animationTimeline = gsap.timeline({
         onStart: _ => {
-            console.log(runningAnimation, 'started')
-            runningAnimation = animationTimeline
+            forwardAnimationsStack.push(animationTimeline)
         },
         onComplete: _ => {
-            console.log(runningAnimation, 'ended')
             runningAnimation = null
         },
         onReverseComplete: _ => {
-            console.log(runningAnimation, 'ended')
+            forwardAnimationsStack.pop()
             runningAnimation = null
         },
     })
@@ -59,8 +59,8 @@ const runInitialAnimation = ({mainMesh, titleMesh, options}) => {
         duration,
     }, '<')
 
-    initialAnimation = animationTimeline.paused(paused)
-    return initialAnimation
+    runningAnimation = animationTimeline.paused(paused)
+    return runningAnimation
 }
 
 const runInitialAnimationReversed = ({options}) => {
@@ -70,7 +70,12 @@ const runInitialAnimationReversed = ({options}) => {
 
     const { paused } = options
 
-    runningAnimation = initialAnimation?.reverse().paused(paused)
+    console.log(forwardAnimationsStack)
+    const lastRanForwardAnimation = forwardAnimationsStack.pop()
+    const reversedAnim = lastRanForwardAnimation?.reverse().paused(paused)
+    runningAnimation = reversedAnim
+
+    return reversedAnim
 }
 
 const customAnimations = {

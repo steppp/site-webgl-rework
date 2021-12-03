@@ -202,6 +202,7 @@ const handleTitleBuiltPromise = (promise, mainMesh) => {
                 })
             }
         });
+
         guiManager.addActionGui({
             targetObj: actionsObj,
             targetFuncName: 'initialAnimation',
