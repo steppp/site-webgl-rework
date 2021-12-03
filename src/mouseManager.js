@@ -15,7 +15,7 @@ let defaultMoveHandler = ev => {
 
 let mouseLeaveHandlers = []
 let defaultLeaveHandler = ev => {
-    // add default behavior
+    // TODO: add default behavior
 
     for (const handler of mouseLeaveHandlers) {
         handler()
@@ -30,10 +30,26 @@ const addCallbackToHandlersChain = (array, callback) => {
 
 let mouseEnterHandlers = []
 let defaultEnterHandler = ev => {
-    // add default behavior
+    // TODO: add default behavior
 
     for (const handler of mouseEnterHandlers) {
         handler(mousePos)
+    }
+}
+
+/**
+ * @callback MouseWheelHandler
+ * @param {WheelEvent} ev 
+ */
+
+/** @type {MouseWheelHandler} */
+let mouseWheelHandlers = []
+/** @type {MouseWheelHandler} */
+let defaultWheelHandler = ev => {
+    // TODO: add default behavior
+
+    for (const handler of mouseWheelHandlers) {
+        handler(ev)
     }
 }
 
@@ -41,6 +57,7 @@ const mouseManager = (() => {
     document.body.addEventListener('mousemove', defaultMoveHandler)
     document.body.addEventListener('mouseleave', defaultLeaveHandler)
     document.body.addEventListener('mouseover', defaultEnterHandler)
+    document.body.addEventListener('wheel', defaultWheelHandler)
 
     return {
         mousePos,
@@ -49,7 +66,13 @@ const mouseManager = (() => {
         addMouseLeaveCallback: (handler) =>
             addCallbackToHandlersChain(mouseLeaveHandlers, handler),
         addMouseEnterCallback: (handler) =>
-            addCallbackToHandlersChain(mouseEnterHandlers, handler)
+            addCallbackToHandlersChain(mouseEnterHandlers, handler),
+        /**
+         * Adds a function to the handlers chain for the Mouse Wheel event
+         * @param {MouseWheelHandler} handler Function to be added to the handlers chain for this event.
+         */
+        addMouseWheelCallback: (handler) =>
+            addCallbackToHandlersChain(mouseWheelHandlers, handler),
     }
 })()
 

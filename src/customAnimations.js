@@ -3,6 +3,8 @@ import * as THREE from "three"
 
 /** @type {gsap.core.Tween} */
 let initialAnimation
+/** @type {gsap.core.Tween} */
+let runningAnimation
 
 /**
  * 
@@ -14,6 +16,10 @@ let initialAnimation
  * @returns {gsap.core.Tween} Animation to be performed in a **paused** state
  */
 const runInitialAnimation = ({mainMesh, titleMesh, options}) => {
+    if (runningAnimation) {
+        return
+    }
+
     const { 
         duration = 1,
         easeType = 'expo.inOut',
@@ -23,16 +29,29 @@ const runInitialAnimation = ({mainMesh, titleMesh, options}) => {
     } = options
 
     // timeline which holds all the animations that have to run
-    const animationTimeline = gsap.timeline()
+    const animationTimeline = gsap.timeline({
+        onStart: _ => {
+            console.log(runningAnimation, 'started')
+            runningAnimation = animationTimeline
+        },
+        onComplete: _ => {
+            console.log(runningAnimation, 'ended')
+            runningAnimation = null
+        },
+        onReverseComplete: _ => {
+            console.log(runningAnimation, 'ended')
+            runningAnimation = null
+        },
+    })
 
     // main mesh animation: scale it
     animationTimeline.to(mainMesh.material.uniforms.uScale, {
         value: mainMeshScale,
         ease: easeType,
-        duration,
+        duration
     }, '<')
-    // title animation: move it
 
+    // title animation: move it
     animationTimeline.to(titleMesh.position, {
         y: titleMeshPosition.y,
         z: titleMeshPosition.z,
@@ -45,9 +64,13 @@ const runInitialAnimation = ({mainMesh, titleMesh, options}) => {
 }
 
 const runInitialAnimationReversed = ({options}) => {
+    if (runningAnimation) {
+        return
+    }
+
     const { paused } = options
 
-    initialAnimation?.reverse().paused(paused)
+    runningAnimation = initialAnimation?.reverse().paused(paused)
 }
 
 const customAnimations = {

@@ -173,7 +173,8 @@ const handleTitleBuiltPromise = (promise, mainMesh) => {
         const actionsObj = {
             initialAnimation: customAnimations.runInitialAnimation.bind(null, {
                 mainMesh, titleMesh, options: {
-                    paused: false
+                    paused: false,
+                    mainMeshScale: mainMesh.material.uniforms.uScale.value * configuration.meshes.animationScale
                 }
             }),
             initialAnimationReverse: customAnimations.runInitialAnimationReversed.bind(null, {
@@ -182,6 +183,25 @@ const handleTitleBuiltPromise = (promise, mainMesh) => {
                 }
             })
         }
+
+        mouseManager.addMouseWheelCallback(ev => {
+            if (ev.deltaY > 0) {
+                customAnimations.runInitialAnimation({
+                    mainMesh, 
+                    titleMesh,
+                    options: {
+                        paused: false,
+                        mainMeshScale: mainMesh.material.uniforms.uScale.value * configuration.meshes.animationScale    
+                    }
+                })
+            } else {
+                customAnimations.runInitialAnimationReversed({
+                    options: {
+                        paused: false
+                    }
+                })
+            }
+        });
         guiManager.addActionGui({
             targetObj: actionsObj,
             targetFuncName: 'initialAnimation',
