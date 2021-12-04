@@ -2,6 +2,7 @@ import { gsap } from "gsap"
 import * as THREE from "three"
 
 const ANIMATION_AFTER_END_DELAY = 300
+const TIMELINE_START = '<'
 
 /** @type {gsap.core.Tween} */
 let initialAnimation
@@ -56,7 +57,7 @@ const runInitialAnimation = ({mainMesh, titleMesh, options}) => {
         value: mainMeshScale,
         ease: easeType,
         duration
-    }, '<')
+    }, TIMELINE_START) // run at the start of the timeline
 
     // title animation: move it
     animationTimeline.to(titleMesh.position, {
@@ -64,7 +65,7 @@ const runInitialAnimation = ({mainMesh, titleMesh, options}) => {
         z: titleMeshPosition.z,
         ease: easeType,
         duration,
-    }, '<')
+    }, TIMELINE_START) // run at the start of the timeline
 
     runningAnimation = animationTimeline.paused(paused)
     return runningAnimation
