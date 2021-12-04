@@ -1,6 +1,8 @@
 import { gsap } from "gsap"
 import * as THREE from "three"
 
+const ANIMATION_AFTER_END_DELAY = 300
+
 /** @type {gsap.core.Tween} */
 let initialAnimation
 /** @type {Array.<gsap.core.Tween>} */
@@ -36,11 +38,16 @@ const runInitialAnimation = ({mainMesh, titleMesh, options}) => {
             forwardAnimationsStack.push(animationTimeline)
         },
         onComplete: _ => {
-            runningAnimation = null
+            // fix for inertia scrolling in safari/macos
+            setTimeout(() => {
+                runningAnimation = null
+            }, ANIMATION_AFTER_END_DELAY);
         },
         onReverseComplete: _ => {
-            forwardAnimationsStack.pop()
-            runningAnimation = null
+            setTimeout(() => {
+                forwardAnimationsStack.pop()
+                runningAnimation = null
+            }, ANIMATION_AFTER_END_DELAY);
         },
     })
 
@@ -64,14 +71,14 @@ const runInitialAnimation = ({mainMesh, titleMesh, options}) => {
 }
 
 const runInitialAnimationReversed = ({options}) => {
-    if (runningAnimation) {
+    if (runningAnimation || forwardAnimationsStack.length === 0) {
         return
     }
 
     const { paused } = options
 
     console.log(forwardAnimationsStack)
-    const lastRanForwardAnimation = forwardAnimationsStack.pop()
+    const lastRanForwardAnimation = forwardAnimationsStack[forwardAnimationsStack.length - 1]
     const reversedAnim = lastRanForwardAnimation?.reverse().paused(paused)
     runningAnimation = reversedAnim
 

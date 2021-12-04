@@ -17,7 +17,7 @@ const parameters = {
     },
     meshes: {
         scale: 1,
-        animationScale: 4,
+        animationScale: 7,
         sphere: {
             geometry: {
                 // TODO: set the radius such that the sphere always covers n% of the page width
