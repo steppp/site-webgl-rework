@@ -59,6 +59,12 @@ const runInitialAnimation = ({mainMesh, titleMesh, options}) => {
         duration
     }, TIMELINE_START) // run at the start of the timeline
 
+    animationTimeline.to(mainMesh.material.uniforms.uOpacity, {
+        value: 0,
+        ease: easeType,
+        duration: duration * 1.2
+    }, TIMELINE_START)
+
     // title animation: move it
     animationTimeline.to(titleMesh.position, {
         y: titleMeshPosition.y,

@@ -4,6 +4,7 @@ precision highp float;
 varying vec2 vUv;
 
 uniform vec3 uColor;
+uniform float uOpacity;
 
 void main() {
     // float strength = distance(gl_PointCoord, vec2(0.5));
@@ -14,5 +15,5 @@ void main() {
     // vec3 color = vec3(0.5137, 0.8039, 1.0);
     vec3 color = uColor;
 
-    gl_FragColor = vec4(color, 1.0);
+    gl_FragColor = vec4(color, uOpacity);
 }

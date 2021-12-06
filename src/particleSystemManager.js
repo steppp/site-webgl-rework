@@ -45,6 +45,9 @@ const getDefaultMaterialUniforms = _ => ({
     },
     uScale: {
         value: configuration.meshes.scale
+    },
+    uOpacity: {
+        value: 1
     }
 })
 
@@ -59,7 +62,8 @@ const buildParticleSystem = (geom, additionalUniforms) => {
     const particlesMaterial = new THREE.ShaderMaterial({
         vertexShader: particlesVertexShader,
         fragmentShader: particlesFragmentShader,
-        uniforms: materialUniforms
+        uniforms: materialUniforms,
+        transparent: true,
     })
 
     // clone the values of the input geometry position attribute
